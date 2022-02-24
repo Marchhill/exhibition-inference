@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'exhibitionInferenceApp.apps.ExhibitioninferenceappConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,12 +53,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'exhibitionInferenceSite.urls'
 
-SETTINGS_PATH = os.path.normpath(os.path.dirname(__file__))
+APP_PATH = os.path.normpath(BASE_DIR / 'exhibitionInferenceApp')
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(SETTINGS_PATH, 'views')],
+        'DIRS': [os.path.join(APP_PATH, 'views')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

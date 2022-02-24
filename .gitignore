@@ -1,1 +1,19 @@
+# Django #
 __pycache__/
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media
+
+# Python # 
+*.py[cod] 
+*$py.class
+
+# Visual Studio Code # 
+.vscode/* 
+!.vscode/settings.json 
+!.vscode/tasks.json 
+!.vscode/launch.json 
+!.vscode/extensions.json 
+.history
