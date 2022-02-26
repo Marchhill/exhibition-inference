@@ -1,35 +1,65 @@
-from django.http import HttpResponse, HttpResponseServerError, Http404
-from django.template import loader
+from datetime import datetime
+from django.core.handlers.wsgi import WSGIRequest
+from django.db import IntegrityError
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
+from django.utils.dateparse import parse_datetime
+from django.shortcuts import render
 import json
 from . import utils
 
+from django.views.decorators.csrf import csrf_exempt
 
-def index(req):
-    template = loader.get_template('index.html')
+
+def index(req: WSGIRequest):
     # serve the admin page!
-    return HttpResponse(template.render({}, req))
+    return render(req, "exhibitionInferenceApp/index.html", context={"data": "test data passed to index.html"})
 
 
-def submitReading(req):
+# WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
+# So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
+@csrf_exempt
+def submitReading(req: WSGIRequest):
     # add a reading to the database
-    if req.method == 'POST':
-        data = {}
-        try:
-            data = json.loads(req.body)
-        except:
-            HttpResponseServerError("Submission not in valid JSON format!")
+    if req.method != "POST":
+        raise Http404("Must make a POST request!")
 
-        x = data['x']
-        y = data['y']
-        z = data['z']
-        t = data['t']
-        deviceId = data['deviceId']
-        quality = data['quality']
-        sessionId = getSessionId(deviceId, t)
+    try:
+        data = json.loads(req.body)
+        x = float(data["x"])
+        y = float(data["y"])
+        z = float(data["z"])
+        t = parse_datetime(data["t"])
+        deviceId = str(data["deviceId"])
+        quality = int(data["quality"])
 
-        # write x, y to database
-        writeReading(x, y, z, t, sessionId, deviceId, quality)
+        if t is None:  # seriously malformed timestamp
+            raise ValueError
+        if not (0 <= x <= 20 and 0 <= y <= 20 and 0 <= z <= 20):  # location out of bounds
+            utils.endSessionIfExists(deviceId=deviceId, lastSeen=t)
+            return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
+    except (json.JSONDecodeError):
+        return HttpResponseBadRequest("Submission not in valid JSON format!")
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest("Invalid JSON received!")
 
-        return HttpResponse("Submission processed.")
+    try:
+        utils.writeReading(
+            x=x,
+            y=y,
+            z=z,
+            t=t,
+            session=utils.getSession(deviceId, t),
+            quality=quality
+        )
+    except IntegrityError as e:
+        if e.args[0] == "UNIQUE constraint failed: exhibitionInferenceApp_reading.session_id, exhibitionInferenceApp_reading.t":
+            return HttpResponseBadRequest("Submission dropped: You've submitted this already.")
+        elif e.args[0] == "CHECK constraint failed: location_bounds_check":
+            return HttpResponseBadRequest("Submission dropped: Location out of bounds [BAD ERROR].")
 
-    raise Http404("Must make a POST request!")
+    return HttpResponse("Submission processed successfully.")
+
+# TODO FIX: Database becomes inconsistent if the same session writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
+# Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.
+
+# TODO CHECK: Do we need database transactions? So far every modification we make are committed immediately.
