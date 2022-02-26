@@ -20,6 +20,9 @@ How to run the website?
        - New data arrives with a gap of more than 10s from previously saved data (new session created)
        - Nightly at 23:59:59, all sessions are ended. _(need to set up cron job or something)_
 
+How to interact with the database (add/view/modify records)? Either:
+- Use a program to open the db.sqlite3 file directly (e.g. DB Browser for SQLite)
+- Run the website as above, then go to `localhost:8000/admin/` and login with username=password=`delta_admin`.
 # Exhibition Inference
 
 The Royal College of Music has one of the richest collections of music-related objects in the UK and Europe, spanning over 500 years of musical activity. A new layout has just been created, and the museum needs to learn how visitors respond to it in order to refine the design in future. 
