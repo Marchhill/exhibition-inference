@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import F, Q
+from django.contrib import admin
 
 
 class Metadata(models.Model):
@@ -25,6 +26,13 @@ class Session(models.Model):
                 name="session_startTime_before_endTime_check"
             )
         ]
+
+    @admin.display(description="Session ID")
+    def admin_session_id(self) -> int:
+        """
+        Used only in admin.py
+        """
+        return self.pk
 
     def session_has_ended(self) -> bool:
         return self.endTime is not None

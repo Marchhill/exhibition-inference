@@ -9,7 +9,17 @@ class MetadataAdmin(admin.ModelAdmin):
     list_display = ("key", "value")
 
 
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ("admin_session_id", "device", "startTime", "endTime")
+    # admin_session_id refers to the method models.Session.admin_session_id
+    # (used for the naming: for readability in admin portal)
+
+
+class ReadingAdmin(admin.ModelAdmin):
+    list_display = ("id", "x", "y", "z", "t", "session_id", "quality")
+
+
 # Register your models here.
 admin.site.register(Metadata, MetadataAdmin)
-admin.site.register(Session)
-admin.site.register(Reading)
+admin.site.register(Session, SessionAdmin)
+admin.site.register(Reading, ReadingAdmin)
