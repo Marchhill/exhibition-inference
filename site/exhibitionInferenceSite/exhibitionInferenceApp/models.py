@@ -11,7 +11,7 @@ class Session(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                # startTime < endTime; https://docs.djangoproject.com/en/4.0/topics/db/queries/#filters-can-reference-fields-on-the-model
+                # startTime <= endTime; https://docs.djangoproject.com/en/4.0/topics/db/queries/#filters-can-reference-fields-on-the-model
                 check=Q(startTime__lte=F("endTime")),
                 name="session_startTime_before_endTime_check"
             )
@@ -35,11 +35,6 @@ class Reading(models.Model):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(
-                check=Q(x__gte=0) & Q(x__lte=10) & Q(y__gte=0) &
-                Q(y__lte=10) & Q(z__gte=0) & Q(z__lte=10),
-                name="location_bounds_check"
-            ),
             models.CheckConstraint(
                 check=Q(quality__gte=0) & Q(quality__lte=100),
                 name="quality_bounds_check"
