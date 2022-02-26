@@ -14,10 +14,6 @@ class Session(models.Model):
                 # startTime < endTime; https://docs.djangoproject.com/en/4.0/topics/db/queries/#filters-can-reference-fields-on-the-model
                 check=Q(startTime__lte=F("endTime")),
                 name="session_startTime_before_endTime_check"
-            ),
-            models.UniqueConstraint(
-                fields=["device", "endTime"],
-                name="no_more_than_one_active_session_check"
             )
         ]
 
@@ -43,6 +39,10 @@ class Reading(models.Model):
                 check=Q(x__gte=0) & Q(x__lte=10) & Q(y__gte=0) &
                 Q(y__lte=10) & Q(z__gte=0) & Q(z__lte=10),
                 name="location_bounds_check"
+            ),
+            models.CheckConstraint(
+                check=Q(quality__gte=0) & Q(quality__lte=100),
+                name="quality_bounds_check"
             ),
             models.UniqueConstraint(
                 fields=["session", "t"], name="idempotency_check"),
