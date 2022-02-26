@@ -1,8 +1,16 @@
 from datetime import datetime, timedelta
 from django.db.models import QuerySet
-from .models import Session, Reading
+from typing import Dict
+from .models import Metadata, Session, Reading
 
-TIMEOUT_IN_SECONDS = 10  # put this somewhere else not magic number!
+
+def getMetadataTimeoutInSeconds() -> int:
+    return int(Metadata.objects.get(key="TIMEOUT_IN_SECONDS").value)
+
+
+def getMetadataXYZBounds() -> Dict[str, float]:
+    data = Metadata.objects.filter(key__endswith="BOUND_METRES_INC")
+    return {m.key: float(m.value) for m in data}
 
 
 def writeReading(x: float, y: float, z: float, t: datetime, session: Session, quality: int):
@@ -51,6 +59,7 @@ def getSession(deviceId: str, timeReading: datetime) -> Session:
         Session: A Session object representing the session record in the database.
     """
     # TODO: Potential race condition? Two incoming requests calling this method at the same time may generate 2 separate sessions...
+    #       https://docs.djangoproject.com/en/4.0/ref/models/expressions/#avoiding-race-conditions-using-f
     try:
         s: Session = Session.objects.get(device=deviceId, endTime__isnull=True)
     except Session.DoesNotExist:  # either device is new, or device's current session has terminated
@@ -62,7 +71,7 @@ def getSession(deviceId: str, timeReading: datetime) -> Session:
     if len(r) != 0:
         # test for timeout
         previousReading: Reading = r[0]
-        if timeReading.second - previousReading.t.second > TIMEOUT_IN_SECONDS:
+        if timeReading.second - previousReading.t.second > getMetadataTimeoutInSeconds():
             # terminate device current session and start a new one
             s.endTime = previousReading.t + timedelta(seconds=10)
             s.save()

@@ -1,9 +1,8 @@
-from datetime import datetime
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
-from django.utils.dateparse import parse_datetime
 from django.shortcuts import render
+from django.utils.dateparse import parse_datetime
 import json
 from . import utils
 
@@ -15,10 +14,18 @@ def index(req: WSGIRequest):
     return render(req, "exhibitionInferenceApp/index.html", context={"data": "test data passed to index.html"})
 
 
-# WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
-# So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
+def _xyzWithinBounds(x: float, y: float, z: float):
+    bounds = utils.getMetadataXYZBounds()
+    return bounds["X_LOWER_BOUND_METRES_INC"] <= x <= bounds["X_UPPER_BOUND_METRES_INC"] and \
+        bounds["Y_LOWER_BOUND_METRES_INC"] <= y <= bounds["Y_UPPER_BOUND_METRES_INC"] and \
+        bounds["Z_LOWER_BOUND_METRES_INC"] <= z <= bounds["Z_UPPER_BOUND_METRES_INC"]
+
+
 @csrf_exempt
 def submitReading(req: WSGIRequest):
+    # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
+    # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
+
     # add a reading to the database
     if req.method != "POST":
         raise Http404("Must make a POST request!")
@@ -34,7 +41,7 @@ def submitReading(req: WSGIRequest):
 
         if t is None:  # seriously malformed timestamp
             raise ValueError
-        if not (0 <= x <= 20 and 0 <= y <= 20 and 0 <= z <= 20):  # location out of bounds
+        if not _xyzWithinBounds(x, y, z):  # location out of bounds
             utils.endSessionIfExists(deviceId=deviceId, lastSeen=t)
             return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
     except (json.JSONDecodeError):
