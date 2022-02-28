@@ -4,16 +4,16 @@
 <body>
     <h2>DELTA FORCE FOREVER</h2>
     <h4>Hello there, I am an admin page.</h3>
-
-        <p>Your data is here:</p>
-        {{ data }}
-
         <canvas id="test" width="500" height="500">
             Cannot load canvas
         </canvas>
 
+        <br />
         END OF CANVAS
         <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
+
+        <p>Your data is here (font-size minimised because it's a huge truck of data):</p>
+        <span style="font-size: 2pt">{{ data }}</span>
 </body>
 
 </html>
