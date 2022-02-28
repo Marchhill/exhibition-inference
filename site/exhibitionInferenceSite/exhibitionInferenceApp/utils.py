@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from django.db.models import QuerySet
-from typing import Dict
+from typing import Dict, List
 from .models import Metadata, Session, Reading
 
 
@@ -13,8 +13,8 @@ def getMetadataXYZBounds() -> Dict[str, float]:
     return {m.key: float(m.value) for m in data}
 
 
-def getAllReadings() -> None:
-    return [a for a in Reading.objects.all()]
+def getAllReadings() -> List[Reading]:
+    return [e for e in Reading.objects.all()]
 
 
 def writeReading(x: float, y: float, z: float, t: datetime, session: Session, quality: int):
