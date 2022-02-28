@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 def index(req: WSGIRequest):
     # serve the admin page!
-    return render(req, "exhibitionInferenceApp/index.html", context={"data": "test data passed to index.html"})
+    return render(req, "exhibitionInferenceApp/index.html", context={"data": utils.getAllReadings()})
 
 
 def _xyzWithinBounds(x: float, y: float, z: float):
@@ -66,7 +66,8 @@ def submitReading(req: WSGIRequest):
 
     return HttpResponse("Submission processed successfully.")
 
-# TODO FIX: Database becomes inconsistent if the same session writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
+# [DONE] TODO FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
 # Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.
+# We may assume (confirmed by Fredrik and Yash) that for each tag, the location data will come in in sequence.
 
 # TODO CHECK: Do we need database transactions? So far every modification we make are committed immediately.

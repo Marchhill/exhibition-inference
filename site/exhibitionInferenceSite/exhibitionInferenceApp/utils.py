@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from django.db.models import QuerySet
-from typing import Dict
+from typing import Dict, List
 from .models import Metadata, Session, Reading
 
 
@@ -11,6 +11,10 @@ def getMetadataTimeoutInSeconds() -> int:
 def getMetadataXYZBounds() -> Dict[str, float]:
     data = Metadata.objects.filter(key__endswith="BOUND_METRES_INC")
     return {m.key: float(m.value) for m in data}
+
+
+def getAllReadings() -> List[Reading]:
+    return [e for e in Reading.objects.all()]
 
 
 def writeReading(x: float, y: float, z: float, t: datetime, session: Session, quality: int):
@@ -95,7 +99,14 @@ def endSessionIfExists(deviceId: str, lastSeen: datetime) -> None:
         s: Session = Session.objects.get(device=deviceId, endTime__isnull=True)
     except Session.DoesNotExist:  # either device is new, or device's current session has terminated
         return
-    s.endTime = min(lastSeen, s.startTime + timedelta(seconds=10))
+
+    r: QuerySet[Reading] = Reading.objects\
+        .filter(session_id=s.pk).order_by("t").reverse()[:1]
+    if len(r) != 0:
+        previousReading: Reading = r[0]
+        s.endTime = previousReading.t
+    else:
+        s.endTime = s.startTime + timedelta(seconds=10)
     s.save()
 
 

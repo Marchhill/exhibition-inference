@@ -6,8 +6,12 @@
 2. Install pre-requisites into your (virtual) environment: see `exhibition-inference/requirements.txt`
 3. Change directory to `exhibition-inference/site/exhibitionInferenceSite/`
 4. Run `python3 manage.py runserver` to serve the server on `localhost:8000`. 
-5. To send POST requests to the server, use this cURL request template on your CLI:\
-   `curl -X POST -H "Content-Type: application/json" -d '{"x":1.2, "y":1.4, "z":1.5, "t":"2022-02-26T00:39:25.018240Z", "deviceId":"sampledevice", "quality":100}' localhost:8000/submit/` (change the stuff after `-d`; this is a well-formed request and should succeed)
+5. To manually send POST requests to the server, use this cURL request template on your CLI:\
+   `curl -X POST -d '{"x":1.2, "y":1.4, "z":1.5, "t":"2022-02-26T00:39:25.018240Z", "deviceId":"sampledevice", "quality":100}' localhost:8000/submit/` (change the stuff after `-d`; this is a well-formed request and should succeed)
+
+   `curl -X POST -d "{\"x\":1.2, \"y\":1.4, \"z\":1.5, \"t\":\"2022-02-26T00:39:25.018240Z\", \"deviceId\":\"sampledevice\", \"quality\":100}" localhost:8000/submit/` (Windows friendly version)
+
+   - `site/exhibitionInferenceSite/exhibitionInferenceApp/devUtils.py` contains some code that does automatic POST requests via Python, which can be useful.
    - So far (as of commit cd4c05a (3am Sat 26 Feb), multiple constraints have been added:
      - x, y, z must all be floats within 0 and 10 inclusive
      - t must be a timestamp string (ISO 8601 format)
