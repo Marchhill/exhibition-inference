@@ -61,17 +61,18 @@ const points = [
   
   ///*
   
-  //drawPicture();
+  drawPicture();
   drawLines();
   //drawLine();
   
   //*/
   //drawTest();
   
-  
+  /*
    window.onload = function() { 
     drawPicture();
   }
+  */
     
   function drawPicture() {
     
