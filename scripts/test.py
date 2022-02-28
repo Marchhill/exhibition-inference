@@ -11,7 +11,7 @@ def handle_data(sender, data):
     data_mode, = struct.unpack('b',data[:1])
     data = data[1:]
     if data_mode in [0,2]:
-        X,Y,Z,quality = struct.unpack('=iiib',data[:13])
+        X,Y,Z,quality = struct.unpack('<iiib',data[:13])
         data = data[13:]
         print(X,Y,Z,quality)
 
@@ -22,11 +22,15 @@ def handle_data(sender, data):
         for i in range(num_distances):
             if len(data)<7:
                 data += b"\x00"*(7-len(data))
-            node_id, distance, quality = struct.unpack('=2sib',data[:7])
+            node_id, distance, quality = struct.unpack('<Hib',data[:7])
             data = data[7:]
-            print(node_id.hex(),distance,quality)
+            print(hex(node_id),distance,quality)
 
-def notification_handler(sender, data):
+def get_device_info(byte_data):
+    node_id = struct.unpack('<Q', byte_data[:8])
+    return hex(node_id[0])
+
+def notification_handler(sender, data): # For debugging purposes only
     """Simple notification handler which prints the data received."""
     print("{0}: {1}".format(sender, data))
 
@@ -45,9 +49,9 @@ async def main(wanted_name):
         device_info = await client.read_gatt_char("1e63b1eb-d4ed-444e-af54-c1e965192501")
         
         await client.start_notify(CHARACTERISTIC_UUID, handle_data)
-        await asyncio.sleep(5.0)
+        await asyncio.sleep(1.0)
         await client.stop_notify(CHARACTERISTIC_UUID)
-    print(device_info)
+    print("Node id: {0}".format(get_device_info(device_info)))
             
 
 
