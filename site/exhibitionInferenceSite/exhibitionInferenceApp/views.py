@@ -4,14 +4,24 @@ from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.shortcuts import render
 from django.utils.dateparse import parse_datetime
 import json
+
+from .models import Reading
 from . import utils
 
 from django.views.decorators.csrf import csrf_exempt
 
 
 def index(req: WSGIRequest):
+    class ReadingEncoder(json.JSONEncoder):
+        def default(self, o):
+            if isinstance(o, Reading):
+                return o.toJson()
+            return json.JSONEncoder.default(self, o)
+
     # serve the admin page!
-    return render(req, "exhibitionInferenceApp/index.html", context={"data": utils.getAllReadings()})
+    return render(req, "exhibitionInferenceApp/index.html", context={
+        "data": json.dumps(utils.getAllReadings(), cls=ReadingEncoder)
+    })
 
 
 def _xyzWithinBounds(x: float, y: float, z: float):
