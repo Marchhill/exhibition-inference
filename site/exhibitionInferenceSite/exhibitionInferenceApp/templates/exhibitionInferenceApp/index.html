@@ -4,11 +4,25 @@
 <body>
     <h2>DELTA FORCE FOREVER</h2>
     <h4>Hello there, I am an admin page.</h3>
-        <canvas id="test" width="1000" height="1000">
+
+        <button style="position:static;left:30px" id="backButton" >Backwards</button>
+
+        <button style="position:static;left:50px" id ="forwardButton">Forward</button>
+
+
+        
+        <canvas id="test" width="1200" height="900">
             Cannot load canvas
         </canvas>
 
+        <p id="dataTest"> testItem</p>
+
+        <div style="display: none" id="jsonData" data-json="{{ data }}"></div>
+
         <br />
+
+        
+
         END OF CANVAS
         <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
 

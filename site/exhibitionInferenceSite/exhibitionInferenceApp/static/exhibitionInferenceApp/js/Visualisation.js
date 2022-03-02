@@ -1,34 +1,51 @@
-const points = [
-    [20, 10],
-    [20, 20],
-    [25, 25],
-    [30, 25],
-    [50, 76]
+const point1 = [
+    [1000, 130],
+    [950, 150],
+    [800, 140],
+    [700, 125],
+    [550, 176],
+    [400, 130],
+    [300, 150],
+    [300, 250],
+    [200, 300],
+    [100, 450],
+    [140, 600],
+    [130, 700],
+    [250, 650],
+    [400, 550],
+    [450, 450],
+    [400, 300],
+    [300, 280],
+    [280, 200],
+    [400, 150],
+    [600, 150],
+    [800, 120],
+    [1020, 150]
   ];
   const point2 = [
-    [20, 11],
-    [20, 22],
-    [25, 5],
-    [30, 45],
-    [50, 26]
+    [120, 211],
+    [120, 222],
+    [225, 305],
+    [130, 245],
+    [150, 226]
   ];
   const point3 = [
-    [350, 30],
-    [320, 25],
-    [190, 40],
-    [100, 60],
-    [150, 90],
-    [220, 120],
-    [300, 90],
-    [360, 40]
+    [350, 230],
+    [320, 225],
+    [190, 240],
+    [100, 260],
+    [150, 290],
+    [220, 320],
+    [300, 290],
+    [360, 240]
   ];
   const point4 = [
-    [10, 100],
-    [100, 100]
+    [210, 400],
+    [500, 400]
   ];
   const point5 = [
-    [10, 150],
-    [100, 150]
+    [500, 350],
+    [700, 550]
   ];
   let paths = [];
   class path {
@@ -43,7 +60,8 @@ const points = [
       }
     }
   }
-  let path1 = new path(points, "bob");
+  
+  let path1 = new path(point1, "bob");
   let path2 = new path(point2, "boo");
   let path3 = new path(point3, "boa");
   let path4 = new path(point4, "bos");
@@ -54,6 +72,7 @@ const points = [
   paths[3] = path4;
   paths[4] = path5;
   
+  
   var canvas = document.getElementById("test");
   var ctx = canvas.getContext("2d");
   
@@ -62,17 +81,25 @@ const points = [
   ///*
   
   drawPicture();
-  drawLines();
+  drawLines(paths);
   //drawLine();
   
   //*/
   //drawTest();
   
-  /*
+  
+  //document.getElementById("dataTest").innerHTML = data[0].x;
+
    window.onload = function() { 
+    
+    const data = document.getElementById("jsonData").getAttribute('data-json'); //List of reading object, 6 attributes
+
+    document.getElementById("dataTest").innerHTML = data[0].x;
+
     drawPicture();
+    drawLines(paths);
   }
-  */
+  
     
   function drawPicture() {
     
@@ -83,7 +110,7 @@ const points = [
     ctx.drawImage(img, 0, 0);
   }
   
-  function drawLines() {
+  function drawLines(paths) {
     let x = Math.random();
     //ctx.strokeStyle = 'rgb(200,0,0)';
     let r = 1;
@@ -94,7 +121,7 @@ const points = [
       r = Math.floor(Math.random() * 255);
       g = Math.floor(Math.random() * 255);
       b = Math.floor(Math.random() * 255);
-      console.log(r);
+      //console.log(r);
       let style = "rgb(" + r + "," + g + "," + b + ")";
       ctx.strokeStyle = style;
       ctx.fillStyle = style;
