@@ -40,6 +40,13 @@ class Session(models.Model):
     def __str__(self):
         return f"{self.device}({self.startTime}-{self.endTime})"
 
+    def toJson(self) -> dict:
+        return {
+            "pk": self.pk,
+            "startTime": self.startTime.isoformat(),
+            "endTime": self.endTime.isoformat()
+        }
+
 
 class Reading(models.Model):
     x = models.FloatField()
@@ -62,3 +69,13 @@ class Reading(models.Model):
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z}) at t={self.t}"
+
+    def toJson(self) -> dict:
+        return {
+            "x": self.x,
+            "y": self.y,
+            "z": self.z,
+            "t": self.t.isoformat(),
+            "session": self.session.toJson(),
+            "quality": self.quality
+        }
