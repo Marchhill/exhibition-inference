@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<style>
+			textarea {
+				width: 500px;
+				height: 300px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Manage Device: {{ device.hardwareId }}</h1>
+		<form action="/metadata/" method="post">
+			<textarea name="metadata">{{ device.metadata|default_if_none:"" }}</textarea>
+			<input type="hidden" name="id" value="{{ device.id }}">
+			<input type="submit" value="Save">
+		</form>
+	</body>
+</html>

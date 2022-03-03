@@ -13,7 +13,8 @@ class Metadata(models.Model):
 
 
 class Session(models.Model):
-    device = models.CharField(max_length=200)
+    device = models.ForeignKey('Device', on_delete=models.CASCADE)
+    metadata = models.CharField(max_length=1000, null=True, blank=True)
     # these are redundant, but optimise a common query
     startTime = models.DateTimeField('start time')
     endTime = models.DateTimeField('end time', null=True, blank=True)
@@ -38,13 +39,17 @@ class Session(models.Model):
         return self.endTime is not None
 
     def __str__(self):
-        return f"{self.device}({self.startTime}-{self.endTime})"
+        if self.metadata:
+            return f"{self.device}({self.startTime}-{self.endTime}): {(self.metadata[:10] + '...') if len(self.metadata) > 10 else data}"
+        else:
+            return f"{self.device}({self.startTime}-{self.endTime})"
 
     def toJson(self) -> dict:
         return {
             "pk": self.pk,
             "startTime": self.startTime.isoformat(),
-            "endTime": self.endTime.isoformat()
+            "endTime": self.endTime.isoformat(),
+            "metadata": self.metadata,
         }
 
 
@@ -78,4 +83,23 @@ class Reading(models.Model):
             "t": self.t.isoformat(),
             "session": self.session.toJson(),
             "quality": self.quality
+        }
+
+
+class Device(models.Model):
+    hardwareId = models.CharField(max_length=200)
+    # store metadata with device until session starts
+    metadata = models.CharField(max_length=1000, null=True, blank=True)
+
+    def __str__(self):
+        if self.metadata:
+            return f"{self.hardwareId}: {(self.metadata[:10] + '...') if len(self.metadata) > 10 else data}"
+        else:
+            return self.hardwareId
+
+    def toJson(self) -> dict:
+        return {
+            "id": self.pk,
+            "hardwareId": self.hardwareId,
+            "metadata": self.metadata,
         }

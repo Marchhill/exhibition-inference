@@ -13,7 +13,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Metadata',
             fields=[
-                ('key', models.CharField(max_length=100, primary_key=True, serialize=False)),
+                ('key', models.CharField(max_length=100,
+                 primary_key=True, serialize=False)),
                 ('value', models.CharField(max_length=200)),
             ],
         ),
