@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('exhibitionInferenceApp', '0002_alter_reading_x_alter_reading_y_alter_reading_z'),
+        ('exhibitionInferenceApp',
+         '0002_alter_reading_x_alter_reading_y_alter_reading_z'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='session',
             name='endTime',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='end time'),
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name='end time'),
         ),
     ]

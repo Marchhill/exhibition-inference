@@ -1,26 +1,22 @@
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_datetime
 import json
 
-from .models import Reading
 from . import utils
 
 from django.views.decorators.csrf import csrf_exempt
 
 
 def index(req: WSGIRequest):
-    class ReadingEncoder(json.JSONEncoder):
-        def default(self, o):
-            if isinstance(o, Reading):
-                return o.toJson()
-            return json.JSONEncoder.default(self, o)
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
 
     # serve the admin page!
     return render(req, "exhibitionInferenceApp/index.html", context={
-        "data": json.dumps(utils.getAllReadings(), cls=ReadingEncoder)
+        "data": utils.getAllReadings()
     })
 
 
@@ -36,28 +32,49 @@ def submitReading(req: WSGIRequest):
     # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
     # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
 
-    # add a reading to the database
     if req.method != "POST":
         raise Http404("Must make a POST request!")
 
     try:
         data = json.loads(req.body)
+    except (json.JSONDecodeError):
+        return HttpResponseBadRequest("Submission not in valid JSON format!")
+
+    try:
         x = float(data["x"])
         y = float(data["y"])
         z = float(data["z"])
         t = parse_datetime(data["t"])
-        deviceId = str(data["deviceId"])
+        hardwareId = str(data["deviceId"])
         quality = int(data["quality"])
 
         if t is None:  # seriously malformed timestamp
             raise ValueError
-        if not _xyzWithinBounds(x, y, z):  # location out of bounds
-            utils.endSessionIfExists(deviceId=deviceId, lastSeen=t)
-            return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
-    except (json.JSONDecodeError):
-        return HttpResponseBadRequest("Submission not in valid JSON format!")
     except (KeyError, ValueError):
         return HttpResponseBadRequest("Invalid JSON received!")
+
+    # get or create device associated with hardware id
+    device = utils.getDeviceByHardwareId(hardwareId)
+    if not device:
+        device = utils.createDevice(hardwareId)
+
+    if not _xyzWithinBounds(x, y, z):  # location out of bounds
+        # end session if one exists
+        s = utils.getSession(device=device)
+        if s:
+            utils.endSession(s)
+        return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
+
+    # get the active session associated with the device
+    s = utils.getSession(device)
+    if s:
+        if utils.hasExpired(s, t):
+            # session has expired, end it and make a new one
+            utils.endSession(s)
+            s = utils.createSession(device, t)
+    else:
+        # no sessions active, create one
+        s = utils.createSession(device, t)
 
     try:
         utils.writeReading(
@@ -65,7 +82,7 @@ def submitReading(req: WSGIRequest):
             y=y,
             z=z,
             t=t,
-            session=utils.getSession(deviceId, t),
+            session=s,
             quality=quality
         )
     except IntegrityError as e:
@@ -75,6 +92,47 @@ def submitReading(req: WSGIRequest):
             return HttpResponseBadRequest("Submission dropped: Location out of bounds [BAD ERROR].")
 
     return HttpResponse("Submission processed successfully.")
+
+
+def manageDevice(req: WSGIRequest):
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    if 'id' in req.GET:
+        d = utils.getDevice(req.GET['id'])
+        if d:
+            return render(req, "exhibitionInferenceApp/deviceManage.html", context={"device": d})
+        else:
+            return HttpResponseBadRequest("Device does not exist.")
+    else:
+        return render(req, "exhibitionInferenceApp/deviceSelect.html", context={
+            "devices": sorted(utils.getAllDevices(), key=lambda d: d.hardwareId)
+        })
+
+
+@csrf_exempt
+def metadata(req: WSGIRequest):
+    # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
+    # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
+
+    if req.method != "POST":
+        raise Http404("Must make a POST request!")
+
+    try:
+        metadata = req.POST["metadata"]
+        deviceId = req.POST["id"]
+    except (KeyError, ValueError):
+        return HttpResponseBadRequest("Invalid JSON received!")
+
+    d = utils.getDevice(deviceId)
+    if d:
+        # update metadata
+        d.metadata = metadata
+        d.save()
+    else:
+        return HttpResponseBadRequest("Device does not exist.")
+
+    return redirect('/device?id=' + str(d.id))
 
 # [DONE] TODO FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
 # Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.
