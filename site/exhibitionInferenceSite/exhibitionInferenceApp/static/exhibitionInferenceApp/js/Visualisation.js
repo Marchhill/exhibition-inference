@@ -56,9 +56,11 @@ const point1 = [
   
       this.x = [];
       this.y = [];
+      this.t = [];
       for (let i = 0; i < data.length; i++) {
         this.x[i] = data[i][0];
         this.y[i] = data[i][1];
+        this.t[i] = data[i][2];
       }
     }
   }
@@ -77,7 +79,7 @@ const point1 = [
   
   const data = JSON.parse(document.getElementById("jsonData").getAttribute('data-json')); //List of reading object, 6 attributes
 
-  document.getElementById("dataTest").innerHTML = data[1].x;
+  //document.getElementById("dataTest").innerHTML = data[1].x;
 
   SplitDataToPaths(data,paths);
   
@@ -112,11 +114,12 @@ const point1 = [
     let currentSession = data[0].session;
     let points = [[]];
     for (let i=0; i<data.length;i++){
-      let xy = dataValsToMapVals(data[i].x,data[i].y);
+      let xyt = dataValsToMapVals(data[i].x,data[i].y,data[i].t);
       if (data[i].session.pk == currentSession.pk && data[i].session.startTime == currentSession.startTime) {
         points[curPathLen] = [];
-        points[curPathLen][0] = xy[0];
-        points[curPathLen][1] = xy[1];//Just adds a new set of points
+        points[curPathLen][0] = xyt[0];
+        points[curPathLen][1] = xyt[1];//Just adds a new set of points
+        points[curPathLen][2] = xyt[2];
         curPathLen++;
       }
       else{
@@ -124,8 +127,9 @@ const point1 = [
         pathCounter++;
         currentSession = data[i].session;//Update session and counter.
         points= [[]];
-        points[0][0] = xy[0];//Initialises new points
-        points[0][1] = xy[1];
+        points[0][0] = xyt[0];//Initialises new points
+        points[0][1] = xyt[1];
+        points[0][2] = xyt[2];
         curPathLen=1; 
       }
     }
@@ -166,13 +170,13 @@ const point1 = [
     }
   }
 
-  function dataValsToMapVals(x,y){
+  function dataValsToMapVals(x,y,t){
     //let height = document.getElementById("test").getAttribute(height);
     //let width = document.getElementById("test").getAttribute(width);
     x = (x*1000) /10; //Going to hard code for now, not sure the exact area the values will be in
     y= 10-y; //We are flipping y, origin is supposed to be the bottom left.
     y = (y*900)/10;
-    return [x,y];
+    return [x,y,t];
   }
 
   
@@ -218,18 +222,11 @@ const point1 = [
     ctx.lineTo(100, 200);
     ctx.stroke();
   }
-  
-  function what(){
-    let x=1;
-  }
-  
+
   function draw(line) {
     let r = 0;
     let g = 0;
     let b = 0;
-    //r = Math.floor(Math.random()*255);
-    //g = Math.floor(Math.random()*255);
-    //b = Math.floor(Math.random()*255);
     let style = "rgb(" + r + "," + g + "," + b + ")";
     ctx.strokeStyle = style;
     ctx.fillStyle = style;

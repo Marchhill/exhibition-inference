@@ -15,16 +15,19 @@
             Cannot load canvas
         </canvas>
 
-        <p id="dataTest"> testItem</p>
+        
 
         <div style="display: none" id="jsonData" data-json="{{ data }}"></div>
 
         <br />
 
         
-
-        END OF CANVAS
+        
         <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
+        <!--
+        <p id="dataTest"> testItem</p>
+
+            END OF CANVAS
 
         <p>Your database has {{ data|length }} readings, and the first 5 are shown here:</p>
         x={{ data.0.x }}, y={{ data.0.y }}, z={{ data.0.z }}, t={{ data.0.t }},
@@ -47,7 +50,7 @@
         sessionId={{ data.4.session.pk }}, sessionStartTime={{ data.4.session.startTime }},
         sessionEndTime={{ data.4.session.endTime }}, quality={{ data.4.quality }}
         <br /><br />
-
+    -->
 </body>
 
 </html>
