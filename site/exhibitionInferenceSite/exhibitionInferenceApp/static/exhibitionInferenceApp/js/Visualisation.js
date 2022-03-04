@@ -112,10 +112,11 @@ const point1 = [
     let currentSession = data[0].session;
     let points = [[]];
     for (let i=0; i<data.length;i++){
+      let xy = dataValsToMapVals(data[i].x,data[i].y);
       if (data[i].session.pk == currentSession.pk && data[i].session.startTime == currentSession.startTime) {
         points[curPathLen] = [];
-        points[curPathLen][0] = data[i].x;
-        points[curPathLen][1] = data[i].y;//Just adds a new set of points
+        points[curPathLen][0] = xy[0];
+        points[curPathLen][1] = xy[1];//Just adds a new set of points
         curPathLen++;
       }
       else{
@@ -123,8 +124,8 @@ const point1 = [
         pathCounter++;
         currentSession = data[i].session;//Update session and counter.
         points= [[]];
-        points[0][0] = data[i].x;//Initialises new points
-        points[0][1] = data[i].y;
+        points[0][0] = xy[0];//Initialises new points
+        points[0][1] = xy[1];
         curPathLen=1; 
       }
     }
@@ -165,31 +166,15 @@ const point1 = [
     }
   }
 
-  function drawDataLines(paths) {
-    let x = Math.random();
-    //ctx.strokeStyle = 'rgb(200,0,0)';
-    let r = 1;
-    let g = 1;
-    let b = 1;
-  
-    for (let i = 0; i < paths.length; i++) {
-      r = Math.floor(Math.random() * 255);
-      g = Math.floor(Math.random() * 255);
-      b = Math.floor(Math.random() * 255);
-      //console.log(r);
-      let style = "rgb(" + r + "," + g + "," + b + ")";
-      ctx.strokeStyle = style;
-      ctx.fillStyle = style;
-      ctx.beginPath();
-  
-      ctx.moveTo(paths[i].x[0], paths[i].y[0]);
-      for (let j = 0; j < paths[i].x.length; j++) {
-        ctx.lineTo(paths[i].x[j], paths[i].y[j]);
-        ctx.fillRect(paths[i].x[j] - 2, paths[i].y[j] - 2, 5, 5);
-      }
-      ctx.stroke();
-    }
+  function dataValsToMapVals(x,y){
+    //let height = document.getElementById("test").getAttribute(height);
+    //let width = document.getElementById("test").getAttribute(width);
+    x = (x*1000) /10; //Going to hard code for now, not sure the exact area the values will be in
+    y= 10-y; //We are flipping y, origin is supposed to be the bottom left.
+    y = (y*900)/10;
+    return [x,y];
   }
+
   
   function drawLine() {
     draw(paths[currentPath]);
