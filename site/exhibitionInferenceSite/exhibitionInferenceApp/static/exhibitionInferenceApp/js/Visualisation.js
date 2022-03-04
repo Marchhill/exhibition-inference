@@ -1,3 +1,4 @@
+/*
 const point1 = [
     [1000, 130],
     [950, 150],
@@ -47,6 +48,7 @@ const point1 = [
     [500, 350],
     [700, 550]
   ];
+  */
   let paths = [];
   class path {
     constructor(data, name) {
@@ -60,7 +62,7 @@ const point1 = [
       }
     }
   }
-  
+  /*
   let path1 = new path(point1, "bob");
   let path2 = new path(point2, "boo");
   let path3 = new path(point3, "boa");
@@ -71,7 +73,13 @@ const point1 = [
   paths[2] = path3;
   paths[3] = path4;
   paths[4] = path5;
+  */
   
+  const data = JSON.parse(document.getElementById("jsonData").getAttribute('data-json')); //List of reading object, 6 attributes
+
+  document.getElementById("dataTest").innerHTML = data[1].x;
+
+  SplitDataToPaths(data,paths);
   
   var canvas = document.getElementById("test");
   var ctx = canvas.getContext("2d");
@@ -81,9 +89,10 @@ const point1 = [
   ///*
   
   drawPicture();
-  drawLines(paths);
+  //drawLines(paths);
   //drawLine();
-  
+  //drawDataLines(paths);
+
   //*/
   //drawTest();
   
@@ -92,14 +101,34 @@ const point1 = [
 
    window.onload = function() { 
     
-    const data = document.getElementById("jsonData").getAttribute('data-json'); //List of reading object, 6 attributes
-
-    document.getElementById("dataTest").innerHTML = data[0].x;
 
     drawPicture();
     drawLines(paths);
   }
   
+  function SplitDataToPaths(data,paths){ //JavaScript Passes by reference not value so this works
+    let pathCounter = 0;
+    let curPathLen = 0;
+    let currentSession = data[0].session;
+    let points = [[]];
+    for (let i=0; i<data.length;i++){
+      if (data[i].session.pk == currentSession.pk && data[i].session.startTime == currentSession.startTime) {
+        points[curPathLen] = [];
+        points[curPathLen][0] = data[i].x;
+        points[curPathLen][1] = data[i].y;//Just adds a new set of points
+        curPathLen++;
+      }
+      else{
+        paths[pathCounter] = new path(points,currentSession); //Happens when we switch to a new set of points and so must finish the last ones.
+        pathCounter++;
+        currentSession = data[i].session;//Update session and counter.
+        points= [[]];
+        points[0][0] = data[i].x;//Initialises new points
+        points[0][1] = data[i].y;
+        curPathLen=1; 
+      }
+    }
+  }
     
   function drawPicture() {
     
@@ -111,6 +140,32 @@ const point1 = [
   }
   
   function drawLines(paths) {
+    let x = Math.random();
+    //ctx.strokeStyle = 'rgb(200,0,0)';
+    let r = 1;
+    let g = 1;
+    let b = 1;
+  
+    for (let i = 0; i < paths.length; i++) {
+      r = Math.floor(Math.random() * 255);
+      g = Math.floor(Math.random() * 255);
+      b = Math.floor(Math.random() * 255);
+      //console.log(r);
+      let style = "rgb(" + r + "," + g + "," + b + ")";
+      ctx.strokeStyle = style;
+      ctx.fillStyle = style;
+      ctx.beginPath();
+  
+      ctx.moveTo(paths[i].x[0], paths[i].y[0]);
+      for (let j = 0; j < paths[i].x.length; j++) {
+        ctx.lineTo(paths[i].x[j], paths[i].y[j]);
+        ctx.fillRect(paths[i].x[j] - 2, paths[i].y[j] - 2, 5, 5);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function drawDataLines(paths) {
     let x = Math.random();
     //ctx.strokeStyle = 'rgb(200,0,0)';
     let r = 1;
