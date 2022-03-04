@@ -60,7 +60,7 @@ const point1 = [
       for (let i = 0; i < data.length; i++) {
         this.x[i] = data[i][0];
         this.y[i] = data[i][1];
-        this.t[i] = data[i][2];
+        this.t[i] = new Date(data[i][2]);
       }
     }
   }
