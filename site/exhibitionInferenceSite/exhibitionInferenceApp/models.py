@@ -13,7 +13,8 @@ class Metadata(models.Model):
 
 
 class Session(models.Model):
-    device = models.ForeignKey('Device', on_delete=models.CASCADE)
+    device = models.ForeignKey(
+        'Device', on_delete=models.CASCADE, db_column='hardwareId')
     metadata = models.CharField(max_length=1000, null=True, blank=True)
     # these are redundant, but optimise a common query
     startTime = models.DateTimeField('start time')
@@ -40,7 +41,7 @@ class Session(models.Model):
 
     def __str__(self):
         if self.metadata:
-            return f"{self.device}({self.startTime}-{self.endTime}): {(self.metadata[:10] + '...') if len(self.metadata) > 10 else data}"
+            return f"{self.device}({self.startTime}-{self.endTime}): {(self.metadata[:10] + '...') if len(self.metadata) > 10 else self.metadata}"
         else:
             return f"{self.device}({self.startTime}-{self.endTime})"
 
@@ -87,13 +88,13 @@ class Reading(models.Model):
 
 
 class Device(models.Model):
-    hardwareId = models.CharField(max_length=200)
+    hardwareId = models.CharField(max_length=200, primary_key=True)
     # store metadata with device until session starts
     metadata = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         if self.metadata:
-            return f"{self.hardwareId}: {(self.metadata[:10] + '...') if len(self.metadata) > 10 else data}"
+            return f"{self.hardwareId}: {(self.metadata[:10] + '...') if len(self.metadata) > 10 else self.metadata}"
         else:
             return self.hardwareId
 

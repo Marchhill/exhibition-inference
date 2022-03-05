@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from django.db.models import QuerySet
-from typing import Dict, List
+from typing import Dict, List, Optional
 from .models import Metadata, Session, Reading, Device
 
 
 # Metadata
+
+
 def getMetadataTimeoutInSeconds() -> int:
     return int(Metadata.objects.get(key="TIMEOUT_IN_SECONDS").value)
 
@@ -12,6 +14,7 @@ def getMetadataTimeoutInSeconds() -> int:
 def getMetadataXYZBounds() -> Dict[str, float]:
     data = Metadata.objects.filter(key__endswith="BOUND_METRES_INC")
     return {m.key: float(m.value) for m in data}
+
 
 # Reading
 
@@ -32,10 +35,11 @@ def getAllReadings() -> List[Reading]:
     return [e for e in Reading.objects.all()]
 
 
-def _lastReading(session: Session) -> datetime:
+def _lastReading(session: Session) -> Reading:
     """
     Helper function that should only be used inside utils
     Finds the last reading associated with the session
+    NB: Always returns a Reading, because every Session has at least 1 Reading
 
     Args:
         session (Session): A Session object representing the session record in the database
@@ -43,29 +47,19 @@ def _lastReading(session: Session) -> datetime:
     Returns:
         datetime: Time object of last reading
     """
-    r: QuerySet[Reading] = Reading.objects\
-        .filter(session_id=session.pk).order_by("t").reverse()
+    return Reading.objects.filter(session_id=session.pk).order_by("t").reverse().get()
 
-    if len(r) == 0:
-        return None
-    else:
-        return r[0]
 
 # Device
 
 
-def getDeviceByHardwareId(hardwareId: str) -> Device:
+def getOrCreateDeviceByHardwareId(hardwareId: str) -> Device:
     try:
         return Device.objects.get(hardwareId=hardwareId)
     except Device.DoesNotExist:
-        return None
-
-
-def getDevice(deviceId: str) -> Device:
-    try:
-        return Device.objects.get(pk=deviceId)
-    except Device.DoesNotExist:
-        return None
+        d = Device(hardwareId=hardwareId)
+        d.save()
+        return d
 
 
 def getAllDevices() -> List[Device]:
@@ -86,6 +80,7 @@ def createDevice(hardwareId: str) -> Device:
     d.save()
     return d
 
+
 # Session
 
 
@@ -103,20 +98,17 @@ def createSession(device: Device, startTime: datetime) -> Session:
     Returns:
         Session: A Session object representing the session record in the database
     """
-    s = None
     s = Session(device=device, startTime=startTime)
     s.save()
     return s
 
 
-def getSession(device: Device) -> Session:
+def getActiveSessionIfExists(device: Device) -> Optional[Session]:
     """
     Retrieves an active session object from the database if one exists
 
     Args:
         device (Device): A Device object representing the device in the database.
-        timeReading (datetime): datetime object provided by the device's 
-        location data
 
     Returns:
         Session: A Session object representing the session record in the database
@@ -134,20 +126,15 @@ def hasExpired(session: Session, timeReading: datetime) -> bool:
 
     Args:
         session (Session): A Session object representing the session record in the database
-        timeReading (datetime): Time object that represents when the reading occured
+        timeReading (datetime): datetime object that represents when the reading occured
 
     Returns:
         bool: has the session expired?
     """
     # find last reading
     lastReading = _lastReading(session)
-
-    if not lastReading:
-        # no associated reading found (should never happen)
-        return True
-    else:
-        # test for timeout
-        return (timeReading - lastReading.t).total_seconds() > getMetadataTimeoutInSeconds()
+    # test for timeout
+    return (timeReading - lastReading.t).total_seconds() > getMetadataTimeoutInSeconds()
 
 
 def endSession(session: Session) -> None:
@@ -159,15 +146,11 @@ def endSession(session: Session) -> None:
     """
     # find last reading
     lastReading = _lastReading(session)
+    # terminate device current session
+    session.endTime = lastReading.t
 
-    if not lastReading:
-        # no associated reading found (should never happen)
-        session.endTime = session.startTime
-    else:
-        # terminate device current session and start a new one
-        session.endTime = lastReading.t
-
-    device = getDevice(session.device_id)
+    # cannot be None by database constraint on Session
+    device = Device.objects.get(hardwareId=session.device_id)
 
     # if device has metadata transfer it to the session and remove from device
     if device.metadata:
@@ -177,10 +160,9 @@ def endSession(session: Session) -> None:
 
     session.save()
 
-# TODO: Run this nightly at 2359
-
 
 def nightlyEndActiveSessions() -> None:
+    # TODO: Run this nightly at 2359
     """
     Terminates all active sessions. To be called periodically (e.g. nightly).
     """

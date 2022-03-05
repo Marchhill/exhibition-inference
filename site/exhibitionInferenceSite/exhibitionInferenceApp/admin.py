@@ -21,7 +21,7 @@ class ReadingAdmin(admin.ModelAdmin):
 
 
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ("id", "hardwareId", "metadata")
+    list_display = ("hardwareId", "metadata")
 
 
 # Register your models here.
