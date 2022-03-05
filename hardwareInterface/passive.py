@@ -21,8 +21,16 @@ def handle_data(sender, data):
         X, Y, Z, quality = struct.unpack('<iiib', data[:13])
         data = data[13:]
         print(X, Y, Z, dateTimeObj, hex(node_ID), quality)
-        pload = {'x': str(X/1000), 'y': str(Y/1000), 'z': str(Z/1000), 't': str(dateTimeObj), 'deviceId': str(hex(node_ID)), 'quality': str(quality)}
-        r = requests.post('http://127.0.0.1:8000/submit/', data = json.dumps(pload))
+        pload = {
+            'x': str(X/1000),
+            'y': str(Y/1000),
+            'z': str(Z/1000),
+            't': str(dateTimeObj),
+            'deviceId': str(hex(node_ID)),
+            'quality': str(quality)
+        }
+        r = requests.post('http://127.0.0.1:8000/submit/',
+                          data=json.dumps(pload))
         print(r)
         print(r.text)
 
@@ -49,7 +57,6 @@ async def main(wanted_name):
         await client.start_notify(CHARACTERISTIC_UUID, handle_data)
         await asyncio.sleep(10000.0)
         await client.stop_notify(CHARACTERISTIC_UUID)
-    
 
 
 if __name__ == "__main__":
