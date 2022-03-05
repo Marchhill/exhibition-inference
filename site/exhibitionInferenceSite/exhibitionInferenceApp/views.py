@@ -68,7 +68,7 @@ def submitReading(req: WSGIRequest):
         s = utils.getSession(device=device)
         if s:
             utils.endSession(s)
-        # return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
+        return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
 
     # get the active session associated with the device
     s = utils.getSession(device)
