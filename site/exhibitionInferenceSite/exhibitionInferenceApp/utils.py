@@ -4,7 +4,9 @@ from typing import Dict, List, Optional
 from .models import Metadata, Session, Reading, Device
 
 
-# Metadata
+############
+# Metadata #
+############
 
 
 def getMetadataTimeoutInSeconds() -> int:
@@ -16,7 +18,9 @@ def getMetadataXYZBounds() -> Dict[str, float]:
     return {m.key: float(m.value) for m in data}
 
 
-# Reading
+###########
+# Reading #
+###########
 
 
 def writeReading(x: float, y: float, z: float, t: datetime, session: Session, quality: int):
@@ -50,7 +54,9 @@ def _lastReading(session: Session) -> Reading:
     return Reading.objects.filter(session_id=session.pk).order_by("t").reverse().get()
 
 
-# Device
+##########
+# Device #
+##########
 
 
 def getOrCreateDeviceByHardwareId(hardwareId: str) -> Device:
@@ -66,22 +72,9 @@ def getAllDevices() -> List[Device]:
     return [e for e in Device.objects.all()]
 
 
-def createDevice(hardwareId: str) -> Device:
-    """
-    Create a new hardware device
-
-    Args:
-        hardwareId (str): string identifier of device
-
-    Returns:
-        Device: A Device object representing the device in the database
-    """
-    d = Device(hardwareId=hardwareId)
-    d.save()
-    return d
-
-
-# Session
+###########
+# Session #
+###########
 
 
 def createSession(device: Device, startTime: datetime) -> Session:

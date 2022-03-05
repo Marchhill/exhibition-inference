@@ -23,15 +23,14 @@ def index(req: WSGIRequest) -> HttpResponse:
     })
 
 
-def _xyzWithinBounds(x: float, y: float, z: float):
-    bounds = utils.getMetadataXYZBounds()
-    return bounds["X_LOWER_BOUND_METRES_INC"] <= x <= bounds["X_UPPER_BOUND_METRES_INC"] and \
-        bounds["Y_LOWER_BOUND_METRES_INC"] <= y <= bounds["Y_UPPER_BOUND_METRES_INC"] and \
-        bounds["Z_LOWER_BOUND_METRES_INC"] <= z <= bounds["Z_UPPER_BOUND_METRES_INC"]
-
-
 @csrf_exempt
 def submitReading(req: WSGIRequest) -> HttpResponse:
+    def _xyzWithinBounds(x: float, y: float, z: float):
+        bounds = utils.getMetadataXYZBounds()
+        return bounds["X_LOWER_BOUND_METRES_INC"] <= x <= bounds["X_UPPER_BOUND_METRES_INC"] and \
+            bounds["Y_LOWER_BOUND_METRES_INC"] <= y <= bounds["Y_UPPER_BOUND_METRES_INC"] and \
+            bounds["Z_LOWER_BOUND_METRES_INC"] <= z <= bounds["Z_UPPER_BOUND_METRES_INC"]
+
     # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
     # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
     print("Executed")
@@ -98,7 +97,15 @@ def submitReading(req: WSGIRequest) -> HttpResponse:
     return HttpResponse("Submission processed successfully.")
 
 
-def frontdeskDevice(req: WSGIRequest, hardwareId: str):
+def frontdeskDeviceSelect(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+    return render(req, "exhibitionInferenceApp/deviceSelect.html", context={
+        "devices": sorted(utils.getAllDevices(), key=lambda d: d.hardwareId)
+    })
+
+
+def frontdeskDevice(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
 
@@ -106,14 +113,8 @@ def frontdeskDevice(req: WSGIRequest, hardwareId: str):
     return render(req, "exhibitionInferenceApp/deviceManage.html", context={"device": d})
 
 
-def frontdeskDeviceSelect(req: WSGIRequest):
-    return render(req, "exhibitionInferenceApp/deviceSelect.html", context={
-        "devices": sorted(utils.getAllDevices(), key=lambda d: d.hardwareId)
-    })
-
-
 @csrf_exempt
-def metadata(req: WSGIRequest):
+def metadata(req: WSGIRequest) -> HttpResponse:
     # WARNING: Sorry! I (Jacky) broke this, and will come back to fixing it tonight (Sat 5 Mar)
     # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
     # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
