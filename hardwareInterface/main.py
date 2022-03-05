@@ -52,7 +52,7 @@ async def main(wanted_name):
         device_info = await client.read_gatt_char("1e63b1eb-d4ed-444e-af54-c1e965192501")
 
         await client.start_notify(CHARACTERISTIC_UUID, handle_data)
-        await asyncio.sleep(1.0)
+        await asyncio.sleep(10000.0)
         await client.stop_notify(CHARACTERISTIC_UUID)
     print("Node id: {0}".format(get_device_info(device_info)))
 
