@@ -8,8 +8,7 @@ def mse(x, beacon_locations, beacon_distances):
     return np.sum(np.power(calculated_distances - beacon_distances, 2)) / len(beacon_distances)
 
 
-def trilaterate(beacon_locations, beacon_distances):
-    initial_location = np.array([0, 0, 0])
+def trilaterate(beacon_locations, beacon_distances, initial_location = np.array([0, 0, 0])):    
 
     result = minimize(
         mse,
