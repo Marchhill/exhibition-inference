@@ -5,14 +5,15 @@ import sys
 import struct
 
 from bleak import BleakScanner, BleakClient
-from datetime import datetime
 import requests
+
+from django.utils.timezone import now as djangoNow
 
 CHARACTERISTIC_UUID = "f4a67d7d-379d-4183-9c03-4b6ea5103291"
 
 
 def handle_data(sender, data):
-    dateTimeObj = datetime.now().timestamp()
+    dateTimeObj = djangoNow()
     no_elements, = struct.unpack('b', data[:1])
     data = data[1:]
     for i in range(no_elements):
@@ -25,8 +26,8 @@ def handle_data(sender, data):
             'x': str(X/1000),
             'y': str(Y/1000),
             'z': str(Z/1000),
-            't': str(dateTimeObj),
-            'deviceId': str(hex(node_ID)),
+            't': dateTimeObj.isoformat(),
+            'hardwareId': str(hex(node_ID)),
             'quality': str(quality)
         }
         r = requests.post('http://127.0.0.1:8000/submit/',

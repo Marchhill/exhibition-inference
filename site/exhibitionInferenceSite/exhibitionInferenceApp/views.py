@@ -1,9 +1,9 @@
 from datetime import datetime
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseBadRequest, Http404
+from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseServerError
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.timezone import make_aware
+from django.utils.dateparse import parse_datetime
 import json
 from typing import Optional
 
@@ -46,9 +46,9 @@ def submitReading(req: WSGIRequest) -> HttpResponse:
         x = float(data["x"])
         y = float(data["y"])
         z = float(data["z"])
-        t = make_aware(datetime.fromtimestamp(float(data["t"])))
+        t = parse_datetime(data["t"])
         # t = make_aware(datetime.fromtimestamp(value))
-        hardwareId = str(data["deviceId"])
+        hardwareId = str(data["hardwareId"])
         quality = int(data["quality"])
 
         print("t is {0}".format(t))
@@ -105,7 +105,7 @@ def frontdeskDeviceSelect(req: WSGIRequest) -> HttpResponse:
     })
 
 
-def frontdeskDevice(req: WSGIRequest, hardwareId: str) -> HttpResponse:
+def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
 
@@ -124,11 +124,11 @@ def metadata(req: WSGIRequest) -> HttpResponse:
 
     try:
         metadata = req.POST["metadata"]
-        deviceId = req.POST["id"]
+        hardwareId = req.POST["id"]
     except (KeyError, ValueError):
         return HttpResponseBadRequest("Invalid JSON received!")
 
-    d = utils.getDeviceByPkIfExists(deviceId)
+    d = utils.getDeviceByPkIfExists(hardwareId)
     if d:
         # update metadata
         d.metadata = metadata
