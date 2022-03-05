@@ -2,7 +2,8 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.shortcuts import render, redirect
-from django.utils.dateparse import parse_datetime
+from datetime import datetime
+from django.utils.timezone import make_aware
 import json
 
 from . import utils
@@ -31,7 +32,7 @@ def _xyzWithinBounds(x: float, y: float, z: float):
 def submitReading(req: WSGIRequest):
     # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
     # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
-
+    print("Executed")
     if req.method != "POST":
         raise Http404("Must make a POST request!")
 
@@ -40,17 +41,22 @@ def submitReading(req: WSGIRequest):
     except (json.JSONDecodeError):
         return HttpResponseBadRequest("Submission not in valid JSON format!")
 
+    value = 1531489250
     try:
         x = float(data["x"])
         y = float(data["y"])
         z = float(data["z"])
-        t = parse_datetime(data["t"])
+        t = make_aware(datetime.fromtimestamp(float(data["t"])))
+        # t = make_aware(datetime.fromtimestamp(value))
         hardwareId = str(data["deviceId"])
         quality = int(data["quality"])
 
+        print("t is {0}".format(t))
+
         if t is None:  # seriously malformed timestamp
             raise ValueError
-    except (KeyError, ValueError):
+    except (KeyError, ValueError) as e:
+        print(e)
         return HttpResponseBadRequest("Invalid JSON received!")
 
     # get or create device associated with hardware id

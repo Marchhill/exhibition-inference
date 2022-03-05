@@ -5,7 +5,7 @@ import struct
 
 from bleak import BleakScanner, BleakClient, BleakError
 
-from test import get_device_info
+from main import get_device_info
 
 CHARACTERISTIC_UUID = "1e63b1eb-d4ed-444e-af54-c1e965192501"
 
