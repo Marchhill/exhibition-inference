@@ -41,7 +41,6 @@ def submitReading(req: WSGIRequest):
     except (json.JSONDecodeError):
         return HttpResponseBadRequest("Submission not in valid JSON format!")
 
-    value = 1531489250
     try:
         x = float(data["x"])
         y = float(data["y"])
@@ -56,7 +55,7 @@ def submitReading(req: WSGIRequest):
         if t is None:  # seriously malformed timestamp
             raise ValueError
     except (KeyError, ValueError) as e:
-        print(e)
+        print("Error: {0}".format(e))
         return HttpResponseBadRequest("Invalid JSON received!")
 
     # get or create device associated with hardware id
@@ -69,7 +68,7 @@ def submitReading(req: WSGIRequest):
         s = utils.getSession(device=device)
         if s:
             utils.endSession(s)
-        return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
+        # return HttpResponseBadRequest("Submission dropped: Location out of bounds.")
 
     # get the active session associated with the device
     s = utils.getSession(device)

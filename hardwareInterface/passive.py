@@ -21,9 +21,10 @@ def handle_data(sender, data):
         X, Y, Z, quality = struct.unpack('<iiib', data[:13])
         data = data[13:]
         print(X, Y, Z, dateTimeObj, hex(node_ID), quality)
-        pload = {'x': str(X), 'y': str(Y), 'z': str(Z), 't': str(dateTimeObj), 'deviceId': str(hex(node_ID)), 'quality': str(quality)}
+        pload = {'x': str(X/1000), 'y': str(Y/1000), 'z': str(Z/1000), 't': str(dateTimeObj), 'deviceId': str(hex(node_ID)), 'quality': str(quality)}
         r = requests.post('http://127.0.0.1:8000/submit/', data = json.dumps(pload))
         print(r)
+        print(r.text)
 
 
 def get_device_info(byte_data):
@@ -42,18 +43,13 @@ async def main(wanted_name):
     )
     print("Device:")
     print(device)
-    device_info = None
     async with BleakClient(device.address) as client:
-        # svcs = await client.get_services()
-        # print("Services:")
-        # for service in svcs:
-        #     print(service)
         device_info = await client.read_gatt_char("1e63b1eb-d4ed-444e-af54-c1e965192501")
-
+        print("Node id: {0}".format(get_device_info(device_info)))
         await client.start_notify(CHARACTERISTIC_UUID, handle_data)
-        await asyncio.sleep(2.0)
+        await asyncio.sleep(10000.0)
         await client.stop_notify(CHARACTERISTIC_UUID)
-    print("Node id: {0}".format(get_device_info(device_info)))
+    
 
 
 if __name__ == "__main__":
