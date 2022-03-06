@@ -1,15 +1,8 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import json
 import random
-import django
 import requests
 from typing import List, Tuple
-from django.conf import settings
-from django.utils.timezone import now as djangoNow
-
-
-# to allow djangoNow to detect current timezone
-settings.configure(USE_TZ=True)
 
 
 def _truncateStr(toTruncate: str, maxLength: int):
@@ -23,7 +16,7 @@ def initialiseSeed(seed: int = 42):
 
 
 def generateSession(pollFrequencyHz: int = 5) -> List[Tuple[float, float, float, datetime, str, int]]:
-    now = djangoNow()
+    now = datetime.now()
     # These and "Blue", "Orange", "Red", "Green" are all possible tag IDs
     hardwareId = f"Tag{random.randint(1, 8)}"
 
@@ -69,7 +62,7 @@ def postSession(sessions: List[Tuple[float, float, float, datetime, str, int]]) 
             "x": tup[0],
             "y": tup[1],
             "z": tup[2],
-            "t": tup[3].isoformat(),
+            "t": tup[3].timestamp(),
             "hardwareId": tup[4],
             "quality": tup[5]
         }))

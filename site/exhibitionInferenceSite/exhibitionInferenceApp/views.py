@@ -1,11 +1,11 @@
-from re import S
+from datetime import datetime
 from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
 import json
 from typing import Optional
 
@@ -48,15 +48,11 @@ def submitReading(req: WSGIRequest) -> HttpResponse:
         x = float(data["x"])
         y = float(data["y"])
         z = float(data["z"])
-        t = parse_datetime(data["t"])
-        # t = make_aware(datetime.fromtimestamp(value))
+        t = make_aware(datetime.fromtimestamp(float(data["t"])))
         hardwareId = str(data["hardwareId"])
         quality = int(data["quality"])
 
         print("t is {0}".format(t))
-
-        if t is None:  # seriously malformed timestamp
-            raise ValueError
     except (KeyError, ValueError) as e:
         print("Error: {0}".format(e))
         return HttpResponseBadRequest("Invalid JSON received!")

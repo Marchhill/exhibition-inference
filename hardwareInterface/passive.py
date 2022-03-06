@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 from http import client
 import json
 import sys
@@ -7,13 +8,11 @@ import struct
 from bleak import BleakScanner, BleakClient
 import requests
 
-from django.utils.timezone import now as djangoNow
-
 CHARACTERISTIC_UUID = "f4a67d7d-379d-4183-9c03-4b6ea5103291"
 
 
 def handle_data(sender, data):
-    dateTimeObj = djangoNow()
+    dateTimeObj = datetime.now().timestamp()
     no_elements, = struct.unpack('b', data[:1])
     data = data[1:]
     for i in range(no_elements):
@@ -26,7 +25,7 @@ def handle_data(sender, data):
             'x': str(X/1000),
             'y': str(Y/1000),
             'z': str(Z/1000),
-            't': dateTimeObj.isoformat(),
+            't': str(dateTimeObj),
             'hardwareId': str(hex(node_ID)),
             'quality': str(quality)
         }
