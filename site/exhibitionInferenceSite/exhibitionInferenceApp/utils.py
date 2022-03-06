@@ -39,9 +39,8 @@ def getAllReadings() -> List[Reading]:
     return [e for e in Reading.objects.all()]
 
 
-def _lastReading(session: Session) -> Reading:
+def getLastReading(session: Session) -> Reading:
     """
-    Helper function that should only be used inside utils
     Finds the last reading associated with the session
     NB: Always returns a Reading, because every Session has at least 1 Reading
 
@@ -51,7 +50,7 @@ def _lastReading(session: Session) -> Reading:
     Returns:
         datetime: Time object of last reading
     """
-    return Reading.objects.filter(session_id=session.pk).order_by("t").reverse().get()
+    return Reading.objects.filter(session_id=session.pk).order_by("t").reverse()[:1].get()
 
 
 ##########
@@ -125,7 +124,7 @@ def hasExpired(session: Session, timeReading: datetime) -> bool:
         bool: has the session expired?
     """
     # find last reading
-    lastReading = _lastReading(session)
+    lastReading = getLastReading(session)
     # test for timeout
     return (timeReading - lastReading.t).total_seconds() > getMetadataTimeoutInSeconds()
 
@@ -138,7 +137,7 @@ def endSession(session: Session) -> None:
         session (Session): A Session object representing the session record in the database
     """
     # find last reading
-    lastReading = _lastReading(session)
+    lastReading = getLastReading(session)
     # terminate device current session
     session.endTime = lastReading.t
 

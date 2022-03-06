@@ -1,18 +1,41 @@
 <html>
-	<head>
-		<style>
-			textarea {
-				width: 500px;
-				height: 300px;
-			}
-		</style>
-	</head>
-	<body>
-		<h1>Manage Device: {{ device.hardwareId }}</h1>
-		<form action="/metadata/" method="post">
-			<textarea name="metadata">{{ device.metadata|default_if_none:"" }}</textarea>
-			<input type="hidden" name="id" value="{{ device.id }}">
-			<input type="submit" value="Save">
-		</form>
-	</body>
+
+<head>
+    <style>
+        textarea {
+            width: 500px;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Manage Device: {{ device.hardwareId }}</h1>
+    <form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}" method="post">
+        {% csrf_token %}
+        <fieldset>
+            <legend>
+                <h2>Device ID: {{ hardwareId }}</h2>
+            </legend>
+            <h3>Current metadata:</h3>
+            <p>{{ oldMetadata|default_if_none:'(empty)' }}</p>
+            <h3>Active Sessions</h3>
+            {% if activeSessionOptional %}
+            Session ID: {{ activeSessionOptional.pk }}<br />
+            Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
+            Last Seen: {{ latestReadingOptional.t|date:"r" }}<br />
+            End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
+            {% else %}
+            <p>(none)</p>
+            {% endif %}
+        </fieldset>
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+        {% if messages %}{% for m in messages %}<p><strong>{{ m }}</strong></p>{% endfor %}{% endif %}
+        <label for="newMetadata">Edit metadata:</label><br />
+        <textarea id="newMetadata" name="metadata"
+            placeholder="E.g. currently holding audioguide">{{ textboxMetadata|default_if_none:"" }}</textarea><br />
+        <input type="submit" value="Save Changes">
+    </form>
+</body>
+
 </html>

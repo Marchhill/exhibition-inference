@@ -1,10 +1,12 @@
 <html>
-	<body>
-		<h1>Device Select</h1>
-		<p>
-			{% for d in devices %}
-				<a href="?id={{ d.id }}">{{ d.hardwareId }}</a><br>
-			{% endfor %}
-		</p>
-	</body>
+
+<body>
+    <h1>Device Select</h1>
+    <p>
+        {% for d in devices %}
+        <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' d.hardwareId %}">{{ d.hardwareId }}</a><br>
+        {% endfor %}
+    </p>
+</body>
+
 </html>

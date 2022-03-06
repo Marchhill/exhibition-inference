@@ -1,8 +1,10 @@
-from datetime import datetime
+from re import S
+from django.contrib import messages
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseServerError
-from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.utils.dateparse import parse_datetime
 import json
 from typing import Optional
@@ -110,33 +112,41 @@ def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
         raise Http404("Must make a GET request!")
 
     d = get_object_or_404(Device, hardwareId=hardwareId)
-    return render(req, "exhibitionInferenceApp/deviceManage.html", context={"device": d})
+
+    sOptional: Optional[Session] = utils.getActiveSessionIfExists(d)
+    lastReading = utils.getLastReading(sOptional) \
+        if sOptional is not None else None
+    return render(req, "exhibitionInferenceApp/deviceManage.html", context={
+        "hardwareId": hardwareId,
+        "oldMetadata": d.metadata,
+        "textboxMetadata": d.metadata,
+        "activeSessionOptional": sOptional,
+        "latestReadingOptional": lastReading
+    })
 
 
-@csrf_exempt
-def metadata(req: WSGIRequest) -> HttpResponse:
-    # WARNING: Sorry! I (Jacky) broke this, and will come back to fixing it tonight (Sat 5 Mar)
-    # WARNING: Potentially unsafe, particularly if POSTer has to be authenticated.
-    # So far, our POSTers are not authenticated in any way, so CSRF protection is not necessary.
-
+def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     if req.method != "POST":
         raise Http404("Must make a POST request!")
 
+    d = get_object_or_404(Device, hardwareId=hardwareId)
+    newMetadata: str
     try:
-        metadata = req.POST["metadata"]
-        hardwareId = req.POST["id"]
-    except (KeyError, ValueError):
-        return HttpResponseBadRequest("Invalid JSON received!")
+        newMetadata = req.POST["metadata"]
+    except KeyError:
+        return render(req, 'exhibitionInferenceApp/deviceManage.html', context={
+            "hardwareId": hardwareId,
+            "oldMetadata": d.metadata,
+            "textboxMetadata": newMetadata,
+            "error_message": "Request was malformed. You shouldn't see this.",
+        })
 
-    d = utils.getDeviceByPkIfExists(hardwareId)
-    if d:
-        # update metadata
-        d.metadata = metadata
-        d.save()
-    else:
-        return HttpResponseBadRequest("Device does not exist.")
+    d = Device.objects.get(hardwareId=hardwareId)
+    d.metadata = newMetadata if len(newMetadata) > 0 else None
+    d.save()
 
-    return redirect('/device?id=' + str(d.id))
+    messages.success(req, 'Successfully saved changes!')
+    return HttpResponseRedirect(reverse('exhibitionInferenceApp_ns:frontdesk-device-manage', args=(hardwareId,)))
 
 # [DONE] TODO FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
 # Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.
