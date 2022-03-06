@@ -2,7 +2,7 @@
 ## File breakdown
 ### **configure.py**
 ### Description
-This script is used to configure the tags, anchors and the single passive device.It requires a wired connection.
+This script is used to configure the tags, anchors and the single passive device. It requires a wired connection.
 ### Usage
 - Make sure that the device (e.g. tag) is connected using a micro-usb cable to the computer running this script
 - `cd .../exhibition-inference/hardwareInterface/`
@@ -58,4 +58,4 @@ One reason for this maybe improper configuration of the bounds. Bounds are used 
 
 ## Terminology
 ### Room origin:
-An arbitrary point from which all physical distance measurements are taken from and tracking data corresponds to
+An arbitrary point from which all physical distance measurements are taken from and tracking data corresponds to.
