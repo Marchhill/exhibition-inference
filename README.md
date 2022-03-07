@@ -41,3 +41,10 @@ The project aims to use UWB trilateration to estimate how visitors travel around
 Either:
 - Use a program to open the db.sqlite3 file directly (e.g. DB Browser for SQLite)
 - Run the website as above, then go to `localhost:8000/admin/` and login with username=password=`delta_admin`.
+
+**Login credentials**
+- username=password=`delta_admin` (used for admins, unrestritted rights)
+- username=password=`frontdesk` (used for frontdesk staff to write notes for tag sessions)
+- username=password=`analysis` (used for people to see visualisation data)
+
+(permissions for frontdesk and analysis aren't added yet)

@@ -1,28 +1,77 @@
 from datetime import datetime
 from django.contrib import messages
+from django.contrib.auth import authenticate, login as authLogin, logout as authLogout
+from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django.utils.timezone import make_aware
+from django.views.decorators.csrf import csrf_exempt
 import json
 from typing import Optional
+from urllib.parse import urlparse, parse_qs
 
 from . import utils
 from .models import Device, Session
-
-from django.views.decorators.csrf import csrf_exempt
 
 
 def index(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
 
-    # serve the admin page!
+    if not req.user.is_authenticated:
+        # If not logged in, show "Nothing to show" page
+        return render(req, "exhibitionInferenceApp/unauthenticated.html", context={})
     return render(req, "exhibitionInferenceApp/index.html", context={
         "data": utils.getAllReadings()
     })
+
+
+def login(req: WSGIRequest):
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    if req.user.is_authenticated:
+        # If already logged in, redirect to index
+        return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:index"))
+    return render(req, "exhibitionInferenceApp/login.html", context={})
+
+
+def loginPost(req: WSGIRequest):
+    if req.method != "POST":
+        raise Http404("Must make a POST request!")
+
+    username = req.POST["username"]
+    password = req.POST["password"]
+
+    user = authenticate(req, username=username, password=password)
+    if user is not None:
+        # actual logging in, and saving to internal sessions database
+        authLogin(req, user)
+
+        # if a ?next= was in the URL, redirect to that.
+        # (adding ?next= is done by @login_required)
+        # (try visiting /frontdesk/devices when logged out, then logging in, to see how this works)
+        urlQueryNexts = parse_qs(urlparse(req.META["HTTP_REFERER"]).query)\
+            .get("next", [None])
+        if len(urlQueryNexts) == 1 and urlQueryNexts[0] is not None:
+            next = urlQueryNexts[0]
+            return redirect(next)
+        return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:index"))
+    else:
+        messages.error(req, "Invalid login credentials.")
+        # Redirect to same page (/login/?next=...) if ?next= is specified, otherwise go to default login page (/login/)
+        return HttpResponseRedirect(req.META.get("HTTP_REFERER", reverse("exhibitionInferenceApp_ns:login")))
+
+
+def logout(req: WSGIRequest):
+    if req.method != "POST":
+        raise Http404("Must make a POST request!")
+
+    authLogout(req)
+    return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:index"))
 
 
 @csrf_exempt
@@ -95,6 +144,7 @@ def submitReading(req: WSGIRequest) -> HttpResponse:
     return HttpResponse("Submission processed successfully.")
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 def frontdeskDeviceSelect(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -103,6 +153,7 @@ def frontdeskDeviceSelect(req: WSGIRequest) -> HttpResponse:
     })
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -130,11 +181,11 @@ def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpRespon
     try:
         newMetadata = req.POST["metadata"]
     except KeyError:
+        messages.error("Request was malformed. You shouldn't see this.")
         return render(req, 'exhibitionInferenceApp/deviceManage.html', context={
             "hardwareId": hardwareId,
             "oldMetadata": d.metadata,
-            "textboxMetadata": newMetadata,
-            "error_message": "Request was malformed. You shouldn't see this.",
+            "textboxMetadata": newMetadata
         })
 
     d = Device.objects.get(hardwareId=hardwareId)
@@ -142,7 +193,7 @@ def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpRespon
     d.save()
 
     messages.success(req, 'Successfully saved changes!')
-    return HttpResponseRedirect(reverse('exhibitionInferenceApp_ns:frontdesk-device-manage', args=(hardwareId,)))
+    return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:frontdesk-device-manage", args=(hardwareId,)))
 
 # [DONE] TODO FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
 # Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.

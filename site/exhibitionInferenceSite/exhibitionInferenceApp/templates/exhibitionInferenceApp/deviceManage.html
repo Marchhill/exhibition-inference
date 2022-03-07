@@ -1,75 +1,50 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
+{% extends "./base.html" %}
 
-<head>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}">
-    <style>
-        textarea {
-            width: 500px;
-            height: 300px;
-        }
-    </style>
-</head>
+{% block additionalHead %}
+<style>
+    textarea {
+        width: 500px;
+        height: 300px;
+    }
+</style>
+{% endblock %}
 
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="{% url 'exhibitionInferenceApp_ns:index' %}">Exhibition Inference</a>
-            </div>
-            <div id="navbar" class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-select' %}">Manage
-                            Devices</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+{% block manageDevicesClass %}active{% endblock %}
 
-    <div class="container">
+{% block containerBody %}
+<h1>Manage Device: {{ device.hardwareId }}</h1>
+<form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+        <legend>
+            <h2>Device ID: {{ hardwareId }}</h2>
+        </legend>
+        <h3>Current metadata:</h3>
+        <p>{{ oldMetadata|default_if_none:'(empty)' }}</p>
+        <h3>Active Sessions</h3>
+        {% if activeSessionOptional %}
+        Session ID: {{ activeSessionOptional.pk }}<br />
+        Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
+        Last Seen: {{ latestReadingOptional.t|date:"r" }}<br />
+        End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
+        {% else %}
+        <p>(none)</p>
+        {% endif %}
+    </fieldset>
 
-        <body>
-            <h1>Manage Device: {{ device.hardwareId }}</h1>
-            <form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}"
-                method="post">
-                {% csrf_token %}
-                <fieldset>
-                    <legend>
-                        <h2>Device ID: {{ hardwareId }}</h2>
-                    </legend>
-                    <h3>Current metadata:</h3>
-                    <p>{{ oldMetadata|default_if_none:'(empty)' }}</p>
-                    <h3>Active Sessions</h3>
-                    {% if activeSessionOptional %}
-                    Session ID: {{ activeSessionOptional.pk }}<br />
-                    Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
-                    Last Seen: {{ latestReadingOptional.t|date:"r" }}<br />
-                    End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
-                    {% else %}
-                    <p>(none)</p>
-                    {% endif %}
-                </fieldset>
-                {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-                {% if messages %}{% for m in messages %}<p><strong>{{ m }}</strong></p>{% endfor %}{% endif %}
-                <label for="newMetadata">Edit metadata:</label><br />
-                <textarea id="newMetadata" name="metadata"
-                    placeholder="E.g. currently holding audioguide">{{ textboxMetadata|default_if_none:"" }}</textarea><br />
-                <input type="submit" value="Save Changes">
-            </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
-        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
-        crossorigin="anonymous"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-</body>
-
-</html>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <div class="alert alert-success" role="alert">{{ message }}</div>
+    {% endif %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    <label for="newMetadata">Edit metadata:</label><br />
+    <textarea id="newMetadata" name="metadata"
+        placeholder="E.g. currently holding audioguide">{{ textboxMetadata|default_if_none:"" }}</textarea><br />
+    <input type="submit" value="Save Changes">
+</form>
+{% endblock %}
