@@ -1,3 +1,9 @@
+# Exhibition Inference
+
+The Royal College of Music has one of the richest collections of music-related objects in the UK and Europe, spanning over 500 years of musical activity. A new layout has just been created, and the museum needs to learn how visitors respond to it in order to refine the design in future. 
+
+The project aims to use UWB trilateration to estimate how visitors travel around the museum, as well as how long they spend at each exhibit.
+
 ## (Test) Backend Deployment Notes
 
 **How to run the backend server?**
@@ -7,9 +13,9 @@
 3. Change directory to `exhibition-inference/site/exhibitionInferenceSite/`
 4. Run `python3 manage.py runserver` to serve the server on `localhost:8000`. 
 5. To manually send POST requests to the server, use this cURL request template on your CLI:\
-   `curl -X POST -d '{"x":1.2, "y":1.4, "z":1.5, "t":"2022-02-26T00:39:25.018240Z", "deviceId":"sampledevice", "quality":100}' localhost:8000/submit/` (change the stuff after `-d`; this is a well-formed request and should succeed)
+   `curl -X POST -d '{"x":1.2, "y":1.4, "z":1.5, "t":"2022-02-26T00:39:25.018240Z", "hardwareId":"Tag8", "quality":100}' localhost:8000/submit/` (change the stuff after `-d`; this is a well-formed request and should succeed)
 
-   `curl -X POST -d "{\"x\":1.2, \"y\":1.4, \"z\":1.5, \"t\":\"2022-02-26T00:39:25.018240Z\", \"deviceId\":\"sampledevice\", \"quality\":100}" localhost:8000/submit/` (Windows friendly version)
+   `curl -X POST -d "{\"x\":1.2, \"y\":1.4, \"z\":1.5, \"t\":\"2022-02-26T00:39:25.018240Z\", \"hardwareId\":\"Tag8\", \"quality\":100}" localhost:8000/submit/` (Windows friendly version)
 
    - `site/exhibitionInferenceSite/exhibitionInferenceApp/devUtils.py` contains some code that does automatic POST requests via Python, which can be useful.
    - So far (as of commit cd4c05a (3am Sat 26 Feb), multiple constraints have been added:
@@ -36,8 +42,9 @@ Either:
 - Use a program to open the db.sqlite3 file directly (e.g. DB Browser for SQLite)
 - Run the website as above, then go to `localhost:8000/admin/` and login with username=password=`delta_admin`.
 
-# Exhibition Inference
+**Login credentials**
+- username=password=`delta_admin` (used for admins, unrestritted rights)
+- username=password=`frontdesk` (used for frontdesk staff to write notes for tag sessions)
+- username=password=`analysis` (used for people to see visualisation data)
 
-The Royal College of Music has one of the richest collections of music-related objects in the UK and Europe, spanning over 500 years of musical activity. A new layout has just been created, and the museum needs to learn how visitors respond to it in order to refine the design in future. 
-
-The project aims to combine ArUco marker scan locations with dead reckoning to estimate how visitors travel around the museum, as well as how long they spend at each exhibit.
+(permissions for frontdesk and analysis aren't added yet)

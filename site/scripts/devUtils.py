@@ -1,8 +1,14 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import json
 import random
 import requests
 from typing import List, Tuple
+
+
+def _truncateStr(toTruncate: str, maxLength: int):
+    if len(toTruncate) > maxLength:
+        return toTruncate[:maxLength]
+    return toTruncate
 
 
 def initialiseSeed(seed: int = 42):
@@ -10,9 +16,9 @@ def initialiseSeed(seed: int = 42):
 
 
 def generateSession(pollFrequencyHz: int = 5) -> List[Tuple[float, float, float, datetime, str, int]]:
-    now = datetime.now(tz=timezone(timedelta()))
+    now = datetime.now()
     # These and "Blue", "Orange", "Red", "Green" are all possible tag IDs
-    deviceId = f"Tag{random.randint(1, 8)}"
+    hardwareId = f"Tag{random.randint(1, 8)}"
 
     numberOfValidXYZ = random.randint(1, 300)
     locations = [(0, 0, 0)]  # tuples of (x, y, z)
@@ -47,7 +53,7 @@ def generateSession(pollFrequencyHz: int = 5) -> List[Tuple[float, float, float,
     timings = [now + timedelta(seconds=i / pollFrequencyHz,
                                microseconds=random.randint(0, 1 / pollFrequencyHz / 10 * 1_000_000 - 1)) for i in range(totalLength)]
     qualities = [random.randint(0, 100) for _ in range(totalLength)]
-    return [(xyz[0], xyz[1], xyz[2], t, deviceId, q) for xyz, t, q in zip(locations, timings, qualities)]
+    return [(xyz[0], xyz[1], xyz[2], t, hardwareId, q) for xyz, t, q in zip(locations, timings, qualities)]
 
 
 def postSession(sessions: List[Tuple[float, float, float, datetime, str, int]]) -> None:
@@ -56,14 +62,15 @@ def postSession(sessions: List[Tuple[float, float, float, datetime, str, int]]) 
             "x": tup[0],
             "y": tup[1],
             "z": tup[2],
-            "t": tup[3].isoformat(),
-            "deviceId": tup[4],
+            "t": tup[3].timestamp(),
+            "hardwareId": tup[4],
             "quality": tup[5]
         }))
         if r.status_code == 200:
             print(".", end="", flush=True)
         else:
-            print(f"\nrequest response={r.status_code}, {r.content.decode()}")
+            print(
+                f"\nrequest response={r.status_code}, {_truncateStr(r.content.decode(), 20)}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,14 @@
+{% extends "./base.html" %}
+
+{% block manageDevicesClass %}active{% endblock %}
+
+{% block containerBody %}
+<h1>Device Select</h1>
+<p>
+    {% for d in devices %}
+    <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' d.hardwareId %}">
+        {{ d.hardwareId }}
+    </a><br>
+    {% endfor %}
+</p>
+{% endblock %}

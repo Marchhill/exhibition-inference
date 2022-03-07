@@ -1,7 +1,12 @@
 from datetime import datetime, timedelta
 from django.db.models import QuerySet
-from typing import Dict, List
-from .models import Metadata, Session, Reading
+from typing import Dict, List, Optional
+from .models import Metadata, Session, Reading, Device
+
+
+############
+# Metadata #
+############
 
 
 def getMetadataTimeoutInSeconds() -> int:
@@ -13,8 +18,9 @@ def getMetadataXYZBounds() -> Dict[str, float]:
     return {m.key: float(m.value) for m in data}
 
 
-def getAllReadings() -> List[Reading]:
-    return [e for e in Reading.objects.all()]
+###########
+# Reading #
+###########
 
 
 def writeReading(x: float, y: float, z: float, t: datetime, session: Session, quality: int):
@@ -29,94 +35,130 @@ def writeReading(x: float, y: float, z: float, t: datetime, session: Session, qu
     ).save()
 
 
-def _createNewSession(deviceId: str, startTime: datetime) -> Session:
+def getAllReadings() -> List[Reading]:
+    return [e for e in Reading.objects.all()]
+
+
+def getLastReading(session: Session) -> Reading:
     """
-    Helper function used within utils.py, not to be called from outside.
+    Finds the last reading associated with the session
+    NB: Always returns a Reading, because every Session has at least 1 Reading
+
+    Args:
+        session (Session): A Session object representing the session record in the database
+
+    Returns:
+        datetime: Time object of last reading
+    """
+    return Reading.objects.filter(session_id=session.pk).order_by("t").reverse()[:1].get()
+
+
+##########
+# Device #
+##########
+
+
+def getOrCreateDeviceByHardwareId(hardwareId: str) -> Device:
+    try:
+        return Device.objects.get(hardwareId=hardwareId)
+    except Device.DoesNotExist:
+        d = Device(hardwareId=hardwareId)
+        d.save()
+        return d
+
+
+def getAllDevices() -> List[Device]:
+    return [e for e in Device.objects.all()]
+
+
+###########
+# Session #
+###########
+
+
+def createSession(device: Device, startTime: datetime) -> Session:
+    """
     Creates a new session in the database for the device. Used when device 
     sends coordinates within museum bounds, and an active session does not 
     exist yet.
 
     Args:
-        deviceId (str): String ID of a device
+        device (Device): A Device object representing the device in the database
         startTime (datetime): datetime object provided by the device's location
         data
 
     Returns:
-        Session: A Session object representing the session record in the database.
+        Session: A Session object representing the session record in the database
     """
-    s = Session(device=deviceId, startTime=startTime)
+    s = Session(device=device, startTime=startTime)
     s.save()
     return s
 
 
-def getSession(deviceId: str, timeReading: datetime) -> Session:
+def getActiveSessionIfExists(device: Device) -> Optional[Session]:
     """
-    Either retrieves an active session object from the database, or create 
-    one if not exists.
+    Retrieves an active session object from the database if one exists
 
     Args:
-        deviceId (str): String ID of a device
-        timeReading (datetime): datetime object provided by the device's 
-        location data
+        device (Device): A Device object representing the device in the database.
 
     Returns:
-        Session: A Session object representing the session record in the database.
+        Session: A Session object representing the session record in the database
     """
-    # TODO: Potential race condition? Two incoming requests calling this method at the same time may generate 2 separate sessions...
-    #       https://docs.djangoproject.com/en/4.0/ref/models/expressions/#avoiding-race-conditions-using-f
+
     try:
-        s: Session = Session.objects.get(device=deviceId, endTime__isnull=True)
+        return Session.objects.get(device_id=device.pk, endTime__isnull=True)
     except Session.DoesNotExist:  # either device is new, or device's current session has terminated
-        return _createNewSession(deviceId=deviceId, startTime=timeReading)
-
-    # device's current session is still active (except clause not run)
-    r: QuerySet[Reading] = Reading.objects\
-        .filter(session_id=s.pk).order_by("t").reverse()[:1]
-    if len(r) != 0:
-        # test for timeout
-        previousReading: Reading = r[0]
-        if timeReading.second - previousReading.t.second > getMetadataTimeoutInSeconds():
-            # terminate device current session and start a new one
-            s.endTime = previousReading.t + timedelta(seconds=10)
-            s.save()
-            # recursion to remove odd case where Session table contains more than 1 endTime__isnull=True entries
-            return getSession(deviceId, timeReading)
-
-    return s
+        return None
 
 
-def endSessionIfExists(deviceId: str, lastSeen: datetime) -> None:
+def hasExpired(session: Session, timeReading: datetime) -> bool:
     """
-    Terminates the active session for a device, if one exists. Otherwise,
-    do nothing.
+    Checks if the given session has expired by the time of the reading
 
     Args:
-        deviceId (str): String ID of a device
-        lastSeen (datetime): datetime object provided by the device's location 
-        data
+        session (Session): A Session object representing the session record in the database
+        timeReading (datetime): datetime object that represents when the reading occured
+
+    Returns:
+        bool: has the session expired?
     """
-    try:
-        s: Session = Session.objects.get(device=deviceId, endTime__isnull=True)
-    except Session.DoesNotExist:  # either device is new, or device's current session has terminated
-        return
-
-    r: QuerySet[Reading] = Reading.objects\
-        .filter(session_id=s.pk).order_by("t").reverse()[:1]
-    if len(r) != 0:
-        previousReading: Reading = r[0]
-        s.endTime = previousReading.t
-    else:
-        s.endTime = s.startTime + timedelta(seconds=10)
-    s.save()
+    # find last reading
+    lastReading = getLastReading(session)
+    # test for timeout
+    return (timeReading - lastReading.t).total_seconds() > getMetadataTimeoutInSeconds()
 
 
-# TODO: Run this nightly at 2359
+def endSession(session: Session) -> None:
+    """
+    Ends the given session, giving it an end time and metadata
+
+    Args:
+        session (Session): A Session object representing the session record in the database
+    """
+    # find last reading
+    lastReading = getLastReading(session)
+    # terminate device current session
+    session.endTime = lastReading.t
+
+    # cannot be None by database constraint on Session
+    device = Device.objects.get(hardwareId=session.device_id)
+
+    # if device has metadata transfer it to the session and remove from device
+    if device.metadata:
+        session.metadata = device.metadata
+        device.metadata = None
+        device.save()
+
+    session.save()
+
+
 def nightlyEndActiveSessions() -> None:
+    # TODO: Run this nightly at 2359
     """
     Terminates all active sessions. To be called periodically (e.g. nightly).
     """
     activeSessions: QuerySet[Session]
     activeSessions = Session.objects.filter(endTime__isnull=True)
     for s in activeSessions:
-        s.endTime = s.startTime + timedelta(seconds=10)
-        s.save()
+        endSession(s)

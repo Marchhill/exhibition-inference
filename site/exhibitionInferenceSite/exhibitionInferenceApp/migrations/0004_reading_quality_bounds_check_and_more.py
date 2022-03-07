@@ -13,14 +13,17 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddConstraint(
             model_name='reading',
-            constraint=models.CheckConstraint(check=models.Q(('quality__gte', 0), ('quality__lte', 100)), name='quality_bounds_check'),
+            constraint=models.CheckConstraint(check=models.Q(
+                ('quality__gte', 0), ('quality__lte', 100)), name='quality_bounds_check'),
         ),
         migrations.AddConstraint(
             model_name='reading',
-            constraint=models.UniqueConstraint(fields=('session', 't'), name='idempotency_check'),
+            constraint=models.UniqueConstraint(
+                fields=('session', 't'), name='idempotency_check'),
         ),
         migrations.AddConstraint(
             model_name='session',
-            constraint=models.CheckConstraint(check=models.Q(('startTime__lte', django.db.models.expressions.F('endTime'))), name='session_startTime_before_endTime_check'),
+            constraint=models.CheckConstraint(check=models.Q(('startTime__lte', django.db.models.expressions.F(
+                'endTime'))), name='session_startTime_before_endTime_check'),
         ),
     ]

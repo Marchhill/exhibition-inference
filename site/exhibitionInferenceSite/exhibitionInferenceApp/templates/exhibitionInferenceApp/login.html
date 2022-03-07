@@ -1,0 +1,29 @@
+{% extends "./base.html" %}
+
+{% block loginClass %}active{% endblock %}
+
+{% block containerBody %}
+<div class="w-25 mx-auto">
+    <form action="{% url 'exhibitionInferenceApp_ns:login-submit' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        <div class="text-end">
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
