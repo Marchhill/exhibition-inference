@@ -206,7 +206,60 @@ const point1 = [
     }
     draw(paths[currentPath]);
   }
+
+  /* COMPLETELY NOT WORKING YET
+  document.getElementById("animateButton").onclick = function(){ 
+    let timeStep = 100; //Real time between updates (in ms)
+    let speedUp = 1; //speedUp times faster than real life.
+    // so we have a current path
+    let StartTime=0;
+    let EndTime =0;
+    let Difference = 0;
+    let ElapsedTime = 0;
+    let Portion = 0;//Number between 0 and 1, represents the portion of the time difference traversed
+    let xLoc =0;
+    let yLoc =0;
+    for (let i=0; i < paths[currentPath].x.length-1; i++){
+      //Should only reach here when at each new path.
+      StartTime = paths[currentPath].t[i].getTime(); //Gets time in milliseconds
+      EndTime = paths[currentPath].t[i+1].getTime();
+      Difference = EndTime- StartTime; // Now have the difference in milliseconds
+      Difference = Difference/speedUp; // Adjust for speedup
+      CurrentTime = StartTime;
+      while(ElapsedTime+StartTime < EndTime){
+        Portion = ElapsedTime/ Difference;
+        xLoc = Portion*paths[currentPath].x[i] + (1-Portion)*paths[currentPath].x[i+1]; 
+        yLoc = Portion*paths[currentPath].y[i] + (1-Portion)*paths[currentPath].y[i+1];
+        //alert("test");
+        drawPoint(xLoc,yLoc);
+        sleep(timeStep);
+        ElapsedTime += timeStep*speedUp;
+      }
+
+    }
+
+  }
   
+
+  function sleep(milliseconds) { //WORKS TERRIBLY 
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+  }
+
+  function drawPoint(x,y) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawPicture();
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    let style = "rgb(" + r + "," + g + "," + b + ")";
+    ctx.fillStyle = style;
+    ctx.fillRect(x - 2, y, 5, 5);
+  }
+  */ 
   function drawTest() {
     ctx.fillStyle = "rgb(200,0,0)";
     ctx.fillRect(140, 300, 50, 47); //x y size x size y
