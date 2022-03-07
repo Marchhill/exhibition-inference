@@ -21,5 +21,8 @@ urlpatterns = [
         'frontdesk/devices/<str:hardwareId>/submit/',
         views.frontdeskDeviceManageSubmit,
         name='frontdesk-device-manage-submit'
-    )
+    ),
+    path('login/', views.login, name='login'),
+    path('login/submit/', views.loginPost, name='login-submit'),
+    path('logout/', views.logout, name='logout'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -1,48 +1,14 @@
-{% load static %}
-<!doctype html>
-<html lang="en">
+{% extends "./base.html" %}
 
-<head>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}">
-</head>
+{% block manageDevicesClass %}active{% endblock %}
 
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="{% url 'exhibitionInferenceApp_ns:index' %}">Exhibition Inference</a>
-            </div>
-            <div id="navbar" class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <li class="active"><a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-select' %}">Manage
-                            Devices</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <h1>Device Select</h1>
-        <p>
-            {% for d in devices %}
-            <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' d.hardwareId %}">
-                {{ d.hardwareId }}
-            </a><br>
-            {% endfor %}
-        </p>
-    </div>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
-        integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
-        crossorigin="anonymous"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-</body>
-
-</html>
+{% block containerBody %}
+<h1>Device Select</h1>
+<p>
+    {% for d in devices %}
+    <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' d.hardwareId %}">
+        {{ d.hardwareId }}
+    </a><br>
+    {% endfor %}
+</p>
+{% endblock %}
