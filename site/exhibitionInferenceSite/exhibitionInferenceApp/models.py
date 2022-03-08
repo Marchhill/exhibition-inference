@@ -49,7 +49,7 @@ class Session(models.Model):
         return {
             "pk": self.pk,
             "startTime": self.startTime.isoformat(),
-            "endTime": self.endTime.isoformat(),
+            "endTime": None if self.endTime is None else self.endTime.isoformat(),
             "metadata": self.metadata,
         }
 

@@ -2,59 +2,36 @@
 {% load static %}
 
 
-<body>
-    <h2>DELTA FORCE FOREVER</h2>
-    <h4>Hello there, I am an admin page.</h3>
+{% block containerBody %}
+<h2>DELTA FORCE FOREVER</h2>
+<h4>Hello there, I am an admin page.</h4>
 
-        <button style="position:static;left:30px" id="backButton" >Backwards</button>
+<button style="position:static;left:30px" id="backButton">Backwards</button>
 
-        <button style="position:static;left:50px" id ="forwardButton">Forward</button>
+<button style="position:static;left:50px" id="forwardButton">Forward</button>
 
-        <button style="position:static;left:70px" id ="animateButton">Animate!</button>
+<button style="position:static;left:70px" id="animateButton">Animate!</button>
 
 
-        
-        <canvas id="test" width="1200" height="900">
-            Cannot load canvas
-        </canvas>
 
-        
+<canvas id="test" width="1200" height="900">
+    Cannot load canvas
+</canvas>
 
-        <div style="display: none" id="jsonData" data-json="{{ data }}"></div>
 
-        <br />
 
-        
-        
-        <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
-        <!--
-        <p id="dataTest"> testItem</p>
+<div style="display: none" id="jsonData" data-json="{{ data }}"></div>
 
-            END OF CANVAS
+<br />
 
-        <p>Your database has {{ data|length }} readings, and the first 5 are shown here:</p>
-        x={{ data.0.x }}, y={{ data.0.y }}, z={{ data.0.z }}, t={{ data.0.t }},
-        sessionId={{ data.0.session.pk }}, sessionStartTime={{ data.0.session.startTime }},
-        sessionEndTime={{ data.0.session.endTime }}, quality={{ data.0.quality }}
-        <br /><br />
-        x={{ data.1.x }}, y={{ data.1.y }}, z={{ data.1.z }}, t={{ data.1.t }},
-        sessionId={{ data.1.session.pk }}, sessionStartTime={{ data.1.session.startTime }},
-        sessionEndTime={{ data.1.session.endTime }}, quality={{ data.1.quality }}
-        <br /><br />
-        x={{ data.2.x }}, y={{ data.2.y }}, z={{ data.2.z }}, t={{ data.2.t }},
-        sessionId={{ data.2.session.pk }}, sessionStartTime={{ data.2.session.startTime }},
-        sessionEndTime={{ data.2.session.endTime }}, quality={{ data.2.quality }}
-        <br /><br />
-        x={{ data.3.x }}, y={{ data.3.y }}, z={{ data.3.z }}, t={{ data.3.t }},
-        sessionId={{ data.3.session.pk }}, sessionStartTime={{ data.3.session.startTime }},
-        sessionEndTime={{ data.3.session.endTime }}, quality={{ data.3.quality }}
-        <br /><br />
-        x={{ data.4.x }}, y={{ data.4.y }}, z={{ data.4.z }}, t={{ data.4.t }},
-        sessionId={{ data.4.session.pk }}, sessionStartTime={{ data.4.session.startTime }},
-        sessionEndTime={{ data.4.session.endTime }}, quality={{ data.4.quality }}
-        <br /><br />
-    -->
-</body>
 
-</html>
 
+<script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
+
+<p id="dataTest"> testItem</p>
+
+END OF CANVAS
+
+<p>Access the list of Readings provided via {{ data }}</p>
+
+{% endblock %}

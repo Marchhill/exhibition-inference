@@ -14,7 +14,14 @@ from typing import Optional
 from urllib.parse import urlparse, parse_qs
 
 from . import utils
-from .models import Device, Session
+from .models import Device, Reading, Session
+
+
+class ReadingEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Reading):
+            return o.toJson()
+        return json.JSONEncoder.default(self, o)
 
 
 def index(req: WSGIRequest) -> HttpResponse:
@@ -25,7 +32,7 @@ def index(req: WSGIRequest) -> HttpResponse:
         # If not logged in, show "Nothing to show" page
         return render(req, "exhibitionInferenceApp/unauthenticated.html", context={})
     return render(req, "exhibitionInferenceApp/index.html", context={
-        "data": utils.getAllReadings()
+        "data": json.dumps(utils.getAllReadings(), cls=ReadingEncoder)
     })
 
 
