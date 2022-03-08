@@ -36,7 +36,15 @@ def writeReading(x: float, y: float, z: float, t: datetime, session: Session, qu
 
 
 def getAllReadings() -> List[Reading]:
-    return [e for e in Reading.objects.all()]
+    return list(Reading.objects.all())
+
+
+def getSessionReadings(sessionId: int) -> List[Reading]:
+    return list(Reading.objects.filter(session__id=sessionId).all())
+
+
+def getReadingsBetween(startTime: datetime, endTime: datetime) -> List[Reading]:
+    return list(Reading.objects.filter(session__startTime__gte=startTime, session__endTime__lte=endTime).all())
 
 
 def getLastReading(session: Session) -> Reading:

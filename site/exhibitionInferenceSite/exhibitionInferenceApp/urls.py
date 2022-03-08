@@ -5,24 +5,30 @@ from . import views
 
 app_name = "exhibitionInferenceApp_ns"
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('submit/', views.submitReading, name='submit'),
+    path("", views.index, name="index"),
+    path("visualisation/", views.visualisation, name="visualisation-default"),
+    path("visualisation/all/", views.visualisation, name="visualisation-all"),
+    path("visualisation/start/<str:startTime>/end/<str:endTime>/",
+         views.visualisationStartEnd, name="visualisation-start-end"),
+    path("visualisation/session/<int:sessionId>/",
+         views.visualisationSession, name="visualisation-session"),
+    path("submit/", views.submitReading, name="submit"),
     path(
-        'frontdesk/devices/',
+        "frontdesk/devices/",
         views.frontdeskDeviceSelect,
-        name='frontdesk-device-select'
+        name="frontdesk-device-select"
     ),
     path(
-        'frontdesk/devices/<str:hardwareId>/',
+        "frontdesk/devices/<str:hardwareId>",
         views.frontdeskDeviceManage,
-        name='frontdesk-device-manage'
+        name="frontdesk-device-manage"
     ),
     path(
-        'frontdesk/devices/<str:hardwareId>/submit/',
+        "frontdesk/devices/<str:hardwareId>/submit",
         views.frontdeskDeviceManageSubmit,
-        name='frontdesk-device-manage-submit'
+        name="frontdesk-device-manage-submit"
     ),
-    path('login/', views.login, name='login'),
-    path('login/submit/', views.loginPost, name='login-submit'),
-    path('logout/', views.logout, name='logout'),
+    path("login/", views.login, name="login"),
+    path("login/submit/", views.loginPost, name="login-submit"),
+    path("logout/", views.logout, name="logout"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
