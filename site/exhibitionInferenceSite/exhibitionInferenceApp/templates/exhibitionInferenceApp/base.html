@@ -31,6 +31,10 @@
                     <a class="nav-link {% block manageDevicesClass %}{% endblock %}"
                         href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-select' %}">Manage Devices</a>
                 </li>
+                <li class="nav-item active">
+                    <a class="nav-link {% block visualisationClass %}{% endblock %}"
+                        href="{% url 'exhibitionInferenceApp_ns:visualisation-default' %}">Visualisation</a>
+                </li>
             </ul>
             {% endif %}
             <ul class="navbar-nav ms-auto me-2">

@@ -7,14 +7,22 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils.dateparse import parse_datetime
 from django.utils.timezone import make_aware
 from django.views.decorators.csrf import csrf_exempt
 import json
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import urlparse, parse_qs
 
 from . import utils
-from .models import Device, Session
+from .models import Device, Reading, Session
+
+
+class ReadingEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Reading):
+            return o.toJson()
+        return json.JSONEncoder.default(self, o)
 
 
 def index(req: WSGIRequest) -> HttpResponse:
@@ -25,7 +33,57 @@ def index(req: WSGIRequest) -> HttpResponse:
         # If not logged in, show "Nothing to show" page
         return render(req, "exhibitionInferenceApp/unauthenticated.html", context={})
     return render(req, "exhibitionInferenceApp/index.html", context={
-        "data": utils.getAllReadings()
+        "data": json.dumps(utils.getAllReadings(), cls=ReadingEncoder)
+    })
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def visualisationDefault(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    # In case people want to show a different default page next time, this is the method to do it in
+    # Currently, auto-redirect to visualisation/all/
+    return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:visualisation-all"))
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def visualisationAll(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    readings: List[Reading] = utils.getAllReadings()
+    return render(req, "exhibitionInferenceApp/visualisation.html", context={
+        "data": json.dumps(readings, cls=ReadingEncoder)
+    })
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def visualisationStartEnd(req: WSGIRequest, startTime: str, endTime: str) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    startDateTime = parse_datetime(startTime)
+    endDateTime = parse_datetime(endTime)
+    if startDateTime is None or endDateTime is None:
+        # severely malformed datetime strings provided
+        return HttpResponseBadRequest()
+
+    readings: List[Reading] = utils.getReadingsBetween(
+        startTime=startTime, endTime=endTime)
+    return render(req, "exhibitionInferenceApp/visualisation.html", context={
+        "data": json.dumps(readings, cls=ReadingEncoder)
+    })
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    readings: List[Reading] = utils.getSessionReadings(sessionId=sessionId)
+    return render(req, "exhibitionInferenceApp/visualisation.html", context={
+        "data": json.dumps(readings, cls=ReadingEncoder)
     })
 
 
