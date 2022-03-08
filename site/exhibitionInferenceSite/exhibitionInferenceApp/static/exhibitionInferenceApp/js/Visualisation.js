@@ -1,9 +1,6 @@
-/*
-const point1 = [
-    [1000, 130],
-    [950, 150],
-    [800, 140],
-    [700, 125],
+
+const point3 = [
+    [650, 125],
     [550, 176],
     [400, 130],
     [300, 150],
@@ -19,10 +16,9 @@ const point1 = [
     [300, 280],
     [280, 200],
     [400, 150],
-    [600, 150],
-    [800, 120],
-    [1020, 150]
+    [600, 150]
   ];
+  /*
   const point2 = [
     [120, 211],
     [120, 222],
@@ -49,6 +45,87 @@ const point1 = [
     [700, 550]
   ];
   */
+
+  const point1 =[
+    [6,8],
+    [5.2,8.3],
+    [4.6,8.8],
+    [3.5,8.6],
+    [2.9,8.7],
+    [3.05,8.63],
+    [3.1,8.65],
+    [3.13,8.6],
+    [1.5,8.5],
+    [1.6,7.2],
+    [2.1,7.2],
+    [2.8,6],
+    [3.2,5.3],
+    [2.5,4.6],
+    [3.2,3.8],
+    [3.1,2.6],
+    [2.3,2.4],
+    [1.7,2.9],
+    [1.6,3.1],
+    [1.2,4],
+    [2,4.1],
+    [3.2,4.1],
+    [4.1,4.15],
+    [4.6,4.9],
+    [4.2,5.3],
+    [4.5,6.5],
+    [3.5,6.4],
+    [3.1,7.2],
+    [3.3,8.1],
+    [4,8.4],
+    [5.2,8.6],
+    [5.8,8.1],
+    [6.2,8.6]   
+  ]
+
+  const point2 =[
+    [6.2,8.1],
+    [5.2,8.25],
+    [4.1,8.2],
+    [3.2,7.6],
+    [2.6,7],
+    [2,6.4],
+    [1.5,5.4],
+    [1.7,4.7],
+    [2.1,4.3],
+    [2.8,4.6],
+    [3,4.1],
+    [3.8,3.9],
+    [4.3,3.5],
+    [5.1,3.2],
+    [5.6,4],
+    [5.8,4.8],
+    [5.4,5.7],
+    [4.6,6.5],
+    [3.2,6.8],
+    [2.5,7],
+    [1.6,7.6],
+    [1.7,8.7],
+    [2.3,8.6],
+    [3.1,8.1],
+    [3.6,8.6],
+    [4.4,8],
+    [5.2,7.9],
+    [6.1,8.2]
+    
+  ]
+
+  function QuickUpdate(point){
+    
+    for (var i= 0; i < point.length; i++){
+      point[i][0] = point[i][0]*100
+      point[i][1] = 10-point[i][1]
+      point[i][1] = point[i][1]*90
+    }
+    
+  }
+  QuickUpdate(point1);
+  QuickUpdate(point2);
+
   let paths = [];
   class path {
     constructor(data, name) {
@@ -64,24 +141,31 @@ const point1 = [
       }
     }
   }
-  /*
+  
   let path1 = new path(point1, "bob");
+  paths[0] = path1;
+  
   let path2 = new path(point2, "boo");
+  paths[1] = path2;
+  
   let path3 = new path(point3, "boa");
+  paths[2] = path3;
+  /*
   let path4 = new path(point4, "bos");
   let path5 = new path(point5, "bog");
-  paths[0] = path1;
-  paths[1] = path2;
-  paths[2] = path3;
+
+  
+  
+  
   paths[3] = path4;
   paths[4] = path5;
   */
   
-  const data = JSON.parse(document.getElementById("jsonData").getAttribute('data-json')); //List of reading object, 6 attributes
+  //const data = JSON.parse(document.getElementById("jsonData").getAttribute('data-json')); //List of reading object, 6 attributes
 
   //document.getElementById("dataTest").innerHTML = data[1].x;
 
-  SplitDataToPaths(data,paths);
+  //SplitDataToPaths(data,paths);
   
   var canvas = document.getElementById("test");
   var ctx = canvas.getContext("2d");
@@ -164,8 +248,15 @@ const point1 = [
       ctx.moveTo(paths[i].x[0], paths[i].y[0]);
       for (let j = 0; j < paths[i].x.length; j++) {
         ctx.lineTo(paths[i].x[j], paths[i].y[j]);
-        ctx.fillRect(paths[i].x[j] - 2, paths[i].y[j] - 2, 5, 5);
+        if (j < paths[i].x.length-1){
+          drawTriangle(paths[i].x[j], paths[i].y[j], paths[i].x[j+1], paths[i].y[j+1]); 
+        } 
+        else{
+          ctx.fillRect(paths[i].x[j] - 2, paths[i].y[j] - 2, 5, 5); 
+        }
+        
       }
+      
       ctx.stroke();
     }
   }
@@ -183,6 +274,31 @@ const point1 = [
   function drawLine() {
     draw(paths[currentPath]);
   }
+
+  function drawTriangle(StartX,StartY,TargetX,TargetY) {
+    ctx.fill(); //May not be necessary?
+    //along the line *2, and 2 back 2 with l/r 2
+    let StartToTargetX =  TargetX - StartX;
+    let StartToTargetY = TargetY - StartY;
+    let Size =4;
+    //Need to normalise it.
+    let Combined = Math.sqrt( StartToTargetX*StartToTargetX + StartToTargetY* StartToTargetY);
+    StartToTargetX /= Combined;
+    StartToTargetY /= Combined; //Normalised
+    ctx.moveTo(StartX +StartToTargetX*Size , StartY+StartToTargetY*Size); //First Point
+    ctx.lineTo(StartX -StartToTargetX*Size - StartToTargetY*Size*1.5, StartY + StartToTargetX*Size*1.5 -StartToTargetY*Size); // Rotation of -90 is x,y -> -y,x So as we are also subtracting x and y we have -2y-2x, 2x-2y
+    ctx.lineTo(StartX -StartToTargetX*Size + StartToTargetY*Size*1.5, StartY - StartToTargetX*Size*1.5 -StartToTargetY*Size);// Rotation of 90 is x,y -> (y,-x) So we get -2x+2y, -2y-2x
+    ctx.lineTo(StartX +StartToTargetX*Size , StartY+StartToTargetY*Size); //Back to start
+    ctx.fill();
+  }
+
+  document.getElementById("AllButton").onclick = function(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawPicture();
+    drawLines(paths);
+  }
+  
   
   document.getElementById("forwardButton").onclick = function(){
   //function IncrementPath() {
@@ -194,6 +310,10 @@ const point1 = [
     } else {
       currentPath++;
     }
+    drawPicture();
+    drawPicture();
+    drawPicture();
+    
     draw(paths[currentPath]);
   }
   document.getElementById("backButton").onclick = function(){
@@ -277,18 +397,25 @@ const point1 = [
   }
 
   function draw(line) {
+    drawPicture();
     let r = 0;
     let g = 0;
     let b = 0;
     let style = "rgb(" + r + "," + g + "," + b + ")";
     ctx.strokeStyle = style;
     ctx.fillStyle = style;
+    drawPicture();
     ctx.beginPath();
     ctx.moveTo(line.x[0], line.y[0]);
   
     for (let j = 0; j < line.x.length; j++) {
       ctx.lineTo(line.x[j], line.y[j]);
-      ctx.fillRect(line.x[j] - 2, line.y[j] - 2, 5, 5);
+      if (j < line.x.length-1){
+        drawTriangle(line.x[j], line.y[j], line.x[j+1], line.y[j+1]);  //Gives direction
+      } 
+      else{
+        ctx.fillRect(line.x[j] - 2, line.y[j] - 2, 5, 5); 
+      }
     }
     ctx.stroke();
   }
