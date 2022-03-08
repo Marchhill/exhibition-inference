@@ -38,7 +38,17 @@ def index(req: WSGIRequest) -> HttpResponse:
 
 
 @login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
-def visualisation(req: WSGIRequest) -> HttpResponse:
+def visualisationDefault(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    # In case people want to show a different default page next time, this is the method to do it in
+    # Currently, auto-redirect to visualisation/all/
+    return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:visualisation-all"))
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def visualisationAll(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
 

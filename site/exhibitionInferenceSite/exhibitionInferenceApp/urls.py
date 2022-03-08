@@ -6,8 +6,9 @@ from . import views
 app_name = "exhibitionInferenceApp_ns"
 urlpatterns = [
     path("", views.index, name="index"),
-    path("visualisation/", views.visualisation, name="visualisation-default"),
-    path("visualisation/all/", views.visualisation, name="visualisation-all"),
+    path("visualisation/", views.visualisationDefault,
+         name="visualisation-default"),
+    path("visualisation/all/", views.visualisationAll, name="visualisation-all"),
     path("visualisation/start/<str:startTime>/end/<str:endTime>/",
          views.visualisationStartEnd, name="visualisation-start-end"),
     path("visualisation/session/<int:sessionId>/",
