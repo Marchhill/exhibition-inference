@@ -2,7 +2,8 @@
 #
 # Download this file into the home directory of the device. 
 # Give this file execution rights (chmod +x setup.sh)
-# Then execute this file (./setup.sh)
+# Then execute this file with sudo permissions (sudo ./setup.sh)
+# NB: All commands are run with sudo permissions.
 
 ###############
 # BOILERPLATE #
@@ -32,9 +33,9 @@ trap exitingDueToError ERR
 ######################################
 
 # || true prevents tripping our set -e setting. If these fail, it's ok.
-sudo systemctl stop gunicorn.socket || true
-sudo systemctl disable gunicorn.socket || true
-sudo systemctl stop nginx || true
+systemctl stop gunicorn.socket || true
+systemctl disable gunicorn.socket || true
+systemctl stop nginx || true
 
 
 #####################
@@ -43,12 +44,12 @@ sudo systemctl stop nginx || true
 
 if [[ ! -e /deltaForce ]]
 then
-    sudo mkdir /deltaForce
+    mkdir /deltaForce
     printGreen "Successfully created /deltaForce"
 else 
-    sudo rm -rf /deltaForce
+    rm -rf /deltaForce
     printGreen "/deltaForce already existed; deleting everything"
-    sudo mkdir /deltaForce
+    mkdir /deltaForce
     printGreen "Successfully recreated /deltaForce"
 fi
 
@@ -60,15 +61,15 @@ cd /deltaForce
 ################
 
 # Install dependencies if not already installed
-sudo apt install -y --upgrade git python3 python3-distutils
+apt install -y --upgrade git python3 python3-distutils
 printGreen "Successfully (re)installed dependencies"
 
 # Install nginx
 # https://nginx.org/en/linux_packages.html#Debian
 if [[ -z "$(which nginx)" ]]
 then
-    sudo apt install -y --upgrade curl gnupg2 ca-certificates lsb-release debian-archive-keyring
-    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+    apt install -y --upgrade curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+    curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
     checksum=$(echo $(gpg --dry-run --quiet --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg))
     correctChecksum=$(echo "pub rsa2048 2011-08-19 [SC] [expires: 2024-06-14] 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 uid nginx signing key <signing-key@nginx.com>")
     if [[ "$checksum" != "$correctChecksum" ]]
@@ -76,14 +77,14 @@ then
         printRed "NGINX installation failed: unexpected checksum"
         exit 1
     fi
-    echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/debian `lsb_release -cs` nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
-    echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | sudo tee /etc/apt/preferences.d/99nginx
-    sudo apt update
-    sudo apt install -y nginx
+    echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/debian `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
+    echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | tee /etc/apt/preferences.d/99nginx
+    apt update
+    apt install -y nginx
     printGreen "Successfully installed NGINX"
 else
-    sudo apt update
-    sudo apt install -y --upgrade nginx
+    apt update
+    apt install -y --upgrade nginx
     printGreen "Successfully upgraded NGINX"
 fi
 
@@ -125,7 +126,7 @@ python3 site/exhibitionInferenceSite/manage.py collectstatic  # Collect static f
 # SYSTEMD SETUP #
 #################
 
-sudo cat <<EOF > /etc/systemd/system/gunicorn.socket
+cat <<EOF > /etc/systemd/system/gunicorn.socket
 [Unit]
 Description=delta force gunicorn socket
 
@@ -136,7 +137,7 @@ ListenStream=/run/gunicorn.sock
 WantedBy=sockets.target
 EOF
 
-sudo cat <<EOF > /etc/systemd/system/gunicorn.service
+cat <<EOF > /etc/systemd/system/gunicorn.service
 [Unit]
 Description=delta force gunicorn daemon
 Requires=gunicorn.socket
@@ -156,7 +157,7 @@ ExecStart=$(which gunicorn) \\
 WantedBy=multi-user.target
 EOF
 
-sudo cat <<EOF > /etc/nginx/nginx.conf
+cat <<EOF > /etc/nginx/nginx.conf
 user $(whoami);
 worker_processes  auto;
 
@@ -186,7 +187,7 @@ http {
 
     #gzip  on;
 
-    include /etc/nginx/conf.d/*.conf;
+    # include /etc/nginx/conf.d/*.conf;  # this one also binds to port 80, DO NOT include.
 
     server {
         listen 80;
@@ -215,12 +216,12 @@ http {
 }
 EOF
 
-sudo systemctl daemon-reload
+systemctl daemon-reload
 printGreen "Successfully wrote and reloaded gunicorn & nginx configuration files for systemd"
 
-sudo systemctl start gunicorn.socket
-sudo systemctl enable gunicorn.socket
-sudo systemctl start nginx
+systemctl start gunicorn.socket
+systemctl enable gunicorn.socket
+systemctl start nginx
 
 printGreen "Successfully started gunicorn and nginx"
 
@@ -230,4 +231,5 @@ printGreen "Successfully started gunicorn and nginx"
 ########
 
 echo
-printGreen "Installation success :) Server is up and running."
+printGreen "Installation success :) Server is up and running at one of: $(hostname -I)."
+echo
