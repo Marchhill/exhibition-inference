@@ -170,6 +170,24 @@ events {
 
 
 http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+
     server {
         listen 80;
 
@@ -180,11 +198,18 @@ http {
         }
         location /static/ {
             autoindex on;
+            autoindex_exact_size off;
             alias ${GITHUB_BASE_DIR}site/exhibitionInferenceSite/static_root/;
         }
         location / {
+            # https://docs.gunicorn.org/en/stable/deploy.html#nginx-configuration
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Host $http_host;
+            # we don't want nginx trying to do something clever with
+            # redirects, we set the Host: header above already.
+            proxy_redirect off;
             proxy_pass http://unix:/run/gunicorn.sock;
-            proxy_set_header    Host $host;
         }
     }
 }
