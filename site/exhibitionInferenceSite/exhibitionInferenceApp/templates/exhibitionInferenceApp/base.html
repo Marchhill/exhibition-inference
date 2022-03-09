@@ -6,6 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="../../static/exhibitionInferenceApp/images/favicon.ico">
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/general.css' %}">
     {% block additionalHead %}
@@ -34,6 +35,10 @@
                 <li class="nav-item active">
                     <a class="nav-link {% block visualisationClass %}{% endblock %}"
                         href="{% url 'exhibitionInferenceApp_ns:visualisation-default' %}">Visualisation</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link {% block dataDump %}{% endblock %}"
+                        href="{% url 'exhibitionInferenceApp_ns:data-default' %}">Data</a>
                 </li>
             </ul>
             {% endif %}

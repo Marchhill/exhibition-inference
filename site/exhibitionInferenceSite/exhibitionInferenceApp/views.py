@@ -86,6 +86,14 @@ def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
         "data": json.dumps(readings, cls=ReadingEncoder)
     })
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def dataDefault(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+    readings: List[Reading] = utils.getAllReadings()
+    return render(req, "exhibitionInferenceApp/data.html", context={
+        "data": json.dumps(readings, cls=ReadingEncoder)})
+
 
 def login(req: WSGIRequest):
     if req.method != "GET":
