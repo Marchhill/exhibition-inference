@@ -89,7 +89,7 @@ fi
 
 # Install pip if not already installed
 if [[ -z "$(which pip)" ]]
-then {
+then
     wget https://bootstrap.pypa.io/get-pip.py
     python3 get-pip.py
     if [[ "$PATH" != *"$(dirname $(which pip))"* ]] # if parent directory of pip not in PATH
