@@ -1,9 +1,6 @@
 /*
-const point1 = [
-    [1000, 130],
-    [950, 150],
-    [800, 140],
-    [700, 125],
+const point3 = [
+    [650, 125],
     [550, 176],
     [400, 130],
     [300, 150],
@@ -19,10 +16,10 @@ const point1 = [
     [300, 280],
     [280, 200],
     [400, 150],
-    [600, 150],
-    [800, 120],
-    [1020, 150]
+    [600, 150]
   ];
+  */
+  /*
   const point2 = [
     [120, 211],
     [120, 222],
@@ -49,6 +46,87 @@ const point1 = [
     [700, 550]
   ];
   */
+/*
+  const point1 =[
+    [6,8],
+    [5.2,8.3],
+    [4.6,8.8],
+    [3.5,8.6],
+    [2.9,8.7],
+    [3.05,8.63],
+    [3.1,8.65],
+    [3.13,8.6],
+    [1.5,8.5],
+    [1.6,7.2],
+    [2.1,7.2],
+    [2.8,6],
+    [3.2,5.3],
+    [2.5,4.6],
+    [3.2,3.8],
+    [3.1,2.6],
+    [2.3,2.4],
+    [1.7,2.9],
+    [1.6,3.1],
+    [1.2,4],
+    [2,4.1],
+    [3.2,4.1],
+    [4.1,4.15],
+    [4.6,4.9],
+    [4.2,5.3],
+    [4.5,6.5],
+    [3.5,6.4],
+    [3.1,7.2],
+    [3.3,8.1],
+    [4,8.4],
+    [5.2,8.6],
+    [5.8,8.1],
+    [6.2,8.6]   
+  ]
+
+  const point2 =[
+    [6.2,8.1],
+    [5.2,8.25],
+    [4.1,8.2],
+    [3.2,7.6],
+    [2.6,7],
+    [2,6.4],
+    [1.5,5.4],
+    [1.7,4.7],
+    [2.1,4.3],
+    [2.8,4.6],
+    [3,4.1],
+    [3.8,3.9],
+    [4.3,3.5],
+    [5.1,3.2],
+    [5.6,4],
+    [5.8,4.8],
+    [5.4,5.7],
+    [4.6,6.5],
+    [3.2,6.8],
+    [2.5,7],
+    [1.6,7.6],
+    [1.7,8.7],
+    [2.3,8.6],
+    [3.1,8.1],
+    [3.6,8.6],
+    [4.4,8],
+    [5.2,7.9],
+    [6.1,8.2]
+    
+  ]
+
+  function QuickUpdate(point){
+    
+    for (var i= 0; i < point.length; i++){
+      point[i][0] = point[i][0]*100
+      point[i][1] = 10-point[i][1]
+      point[i][1] = point[i][1]*90
+    }
+    
+  }
+  QuickUpdate(point1);
+  QuickUpdate(point2);
+*/
   let paths = [];
   class path {
     constructor(data, name) {
@@ -66,18 +144,27 @@ const point1 = [
   }
   /*
   let path1 = new path(point1, "bob");
+  paths[0] = path1;
+  
   let path2 = new path(point2, "boo");
+  paths[1] = path2;
+  
   let path3 = new path(point3, "boa");
+  paths[2] = path3;
+  */
+
+  /*
   let path4 = new path(point4, "bos");
   let path5 = new path(point5, "bog");
-  paths[0] = path1;
-  paths[1] = path2;
-  paths[2] = path3;
+
+  
+  
+  
   paths[3] = path4;
   paths[4] = path5;
   */
   
-  const data = JSON.parse(document.getElementById("jsonData").getAttribute('data-json')); //List of reading object, 6 attributes
+ const data = JSON.parse(document.getElementById("jsonData").getAttribute('data-json')); //List of reading object, 6 attributes
 
   //document.getElementById("dataTest").innerHTML = data[1].x;
 
@@ -85,7 +172,9 @@ const point1 = [
   
   var canvas = document.getElementById("test");
   var ctx = canvas.getContext("2d");
-  
+
+  var intervalID;
+  var showingAll = true;
   var currentPath = 0;
   
   ///*
@@ -164,8 +253,15 @@ const point1 = [
       ctx.moveTo(paths[i].x[0], paths[i].y[0]);
       for (let j = 0; j < paths[i].x.length; j++) {
         ctx.lineTo(paths[i].x[j], paths[i].y[j]);
-        ctx.fillRect(paths[i].x[j] - 2, paths[i].y[j] - 2, 5, 5);
+        if (j < paths[i].x.length-1){
+          drawTriangle(paths[i].x[j], paths[i].y[j], paths[i].x[j+1], paths[i].y[j+1]); 
+        } 
+        else{
+          ctx.fillRect(paths[i].x[j] - 2, paths[i].y[j] - 2, 5, 5); 
+        }
+        
       }
+      
       ctx.stroke();
     }
   }
@@ -183,10 +279,37 @@ const point1 = [
   function drawLine() {
     draw(paths[currentPath]);
   }
+
+  function drawTriangle(StartX,StartY,TargetX,TargetY) {
+    //ctx.fill(); //May not be necessary?
+    //along the line *2, and 2 back 2 with l/r 2
+    let StartToTargetX =  TargetX - StartX;
+    let StartToTargetY = TargetY - StartY;
+    let Size =4;
+    //Need to normalise it.
+    let Combined = Math.sqrt( StartToTargetX*StartToTargetX + StartToTargetY* StartToTargetY);
+    StartToTargetX /= Combined;
+    StartToTargetY /= Combined; //Normalised
+    ctx.moveTo(StartX +StartToTargetX*Size , StartY+StartToTargetY*Size); //First Point
+    ctx.lineTo(StartX -StartToTargetX*Size - StartToTargetY*Size*1.5, StartY + StartToTargetX*Size*1.5 -StartToTargetY*Size); // Rotation of -90 is x,y -> -y,x So as we are also subtracting x and y we have -2y-2x, 2x-2y
+    ctx.lineTo(StartX -StartToTargetX*Size + StartToTargetY*Size*1.5, StartY - StartToTargetX*Size*1.5 -StartToTargetY*Size);// Rotation of 90 is x,y -> (y,-x) So we get -2x+2y, -2y-2x
+    ctx.lineTo(StartX +StartToTargetX*Size , StartY+StartToTargetY*Size); //Back to start
+    ctx.fill();
+  }
+
+  document.getElementById("AllButton").onclick = function(){
+    clearInterval(intervalID);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    showingAll = true;
+    drawPicture();
+    drawLines(paths);
+  }
+  
   
   document.getElementById("forwardButton").onclick = function(){
   //function IncrementPath() {
-    
+    showingAll = false;
+    clearInterval(intervalID);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPicture();
     if (currentPath == paths.length - 1) {
@@ -194,9 +317,15 @@ const point1 = [
     } else {
       currentPath++;
     }
+    drawPicture();
+    drawPicture();
+    drawPicture();
+    
     draw(paths[currentPath]);
   }
   document.getElementById("backButton").onclick = function(){
+    clearInterval(intervalID);
+    showingAll = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawPicture();
     if (currentPath == 0) {
@@ -207,47 +336,122 @@ const point1 = [
     draw(paths[currentPath]);
   }
 
-  /* COMPLETELY NOT WORKING YET
-  document.getElementById("animateButton").onclick = function(){ 
-    let timeStep = 100; //Real time between updates (in ms)
-    let speedUp = 1; //speedUp times faster than real life.
-    // so we have a current path
-    let StartTime=0;
-    let EndTime =0;
-    let Difference = 0;
-    let ElapsedTime = 0;
-    let Portion = 0;//Number between 0 and 1, represents the portion of the time difference traversed
-    let xLoc =0;
-    let yLoc =0;
-    for (let i=0; i < paths[currentPath].x.length-1; i++){
-      //Should only reach here when at each new path.
-      StartTime = paths[currentPath].t[i].getTime(); //Gets time in milliseconds
-      EndTime = paths[currentPath].t[i+1].getTime();
-      Difference = EndTime- StartTime; // Now have the difference in milliseconds
-      Difference = Difference/speedUp; // Adjust for speedup
-      CurrentTime = StartTime;
-      while(ElapsedTime+StartTime < EndTime){
-        Portion = ElapsedTime/ Difference;
-        xLoc = Portion*paths[currentPath].x[i] + (1-Portion)*paths[currentPath].x[i+1]; 
-        yLoc = Portion*paths[currentPath].y[i] + (1-Portion)*paths[currentPath].y[i+1];
-        //alert("test");
-        drawPoint(xLoc,yLoc);
-        sleep(timeStep);
-        ElapsedTime += timeStep*speedUp;
-      }
-
-    }
-
-  }
   
-
-  function sleep(milliseconds) { //WORKS TERRIBLY 
-    const date = Date.now();
-    let currentDate = null;
-    do {
-      currentDate = Date.now();
-    } while (currentDate - date < milliseconds);
+  document.getElementById("animateButton").onclick = function(){ 
+    
+    var ObjectToPass = new Object();
+    ObjectToPass.speedUp = 1; //speedUp times faster than real life.
+    ObjectToPass.timeStep = 100; //Real time between updates (in ms)
+    // so we have a current path
+    if (!showingAll){
+      ObjectToPass.StartTime=paths[currentPath].t[0].getTime();
+      if (paths[currentPath].t.length >0 ) {
+        ObjectToPass.EndTime =paths[currentPath].t[1].getTime();
+      }
+      ObjectToPass.Difference = ObjectToPass.EndTime- ObjectToPass.StartTime;;
+      ObjectToPass.ElapsedTime = 0;
+      ObjectToPass.Portion = 0;//Number between 0 and 1, represents the portion of the time difference traversed
+      ObjectToPass.xLoc =0;
+      ObjectToPass.yLoc =0;
+      ObjectToPass.i=0;
+      clearInterval(intervalID);
+      intervalID = setInterval(drawScene, ObjectToPass.timeStep, ObjectToPass);
+    }
+    else{
+      //ListWise implentation
+      ObjectToPass.StartTime= [];
+      ObjectToPass.EndTime= [];
+      ObjectToPass.ElapsedTime= [];
+      ObjectToPass.Portion= [];
+      ObjectToPass.Difference= [];
+      ObjectToPass.xLoc= [];
+      ObjectToPass.yLoc= [];
+      ObjectToPass.i=[];
+      for (let i =0 ; i < paths.length; i++){
+        if (!showingAll){
+          i = paths.length; //Skip to the end if we're only doing one.
+        }
+        ObjectToPass.StartTime[i] = paths[i].t[0].getTime();
+        if (paths[i].t.length >1 ) {
+          ObjectToPass.EndTime[i] =paths[i].t[1].getTime();
+        }
+        ObjectToPass.Difference[i] = ObjectToPass.EndTime[i]- ObjectToPass.StartTime[i];
+        ObjectToPass.ElapsedTime[i] = 0;
+        ObjectToPass.Portion[i] = 0;//Number between 0 and 1, represents the portion of the time difference traversed
+        ObjectToPass.xLoc[i] =0;
+        ObjectToPass.yLoc[i] =0;
+        ObjectToPass.i[i] =0;//Number of nodes that have been reached
+      }
+      clearInterval(intervalID);
+      intervalID = setInterval(drawScene, ObjectToPass.timeStep, ObjectToPass);
+    }
   }
+
+  
+function drawScene(ObjectToPass){
+
+  if (!showingAll){
+  
+  if ( ObjectToPass.i < paths[currentPath].x.length-1){
+    
+    
+    if (ObjectToPass.ElapsedTime+ObjectToPass.StartTime > ObjectToPass.EndTime){
+      ObjectToPass.i++;
+      ObjectToPass.StartTime = paths[currentPath].t[ObjectToPass.i].getTime(); //Gets time in milliseconds
+      ObjectToPass.EndTime = paths[currentPath].t[ObjectToPass.i+1].getTime();
+      ObjectToPass.Difference = ObjectToPass.EndTime- ObjectToPass.StartTime; // Now have the difference in milliseconds
+      ObjectToPass.Difference = ObjectToPass.Difference/ObjectToPass.speedUp; // Adjust for speedup
+      ObjectToPass.CurrentTime = ObjectToPass.StartTime;
+      ObjectToPass.ElapsedTime = 0;
+    }
+    else{
+      ObjectToPass.Portion = ObjectToPass.ElapsedTime/ ObjectToPass.Difference;
+      ObjectToPass.xLoc = (1-ObjectToPass.Portion)*paths[currentPath].x[ObjectToPass.i] + ObjectToPass.Portion*paths[currentPath].x[ObjectToPass.i+1]; 
+      ObjectToPass.yLoc = (1-ObjectToPass.Portion)*paths[currentPath].y[ObjectToPass.i] + ObjectToPass.Portion*paths[currentPath].y[ObjectToPass.i+1];
+      //alert("test");
+      drawPoint(ObjectToPass.xLoc,ObjectToPass.yLoc);
+      //alert(ObjectToPass.xLoc);
+      ObjectToPass.ElapsedTime += ObjectToPass.timeStep*ObjectToPass.speedUp;
+    }
+    
+
+  }
+}
+  //ListWise
+  else{
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPicture();
+
+  for (let listCount =0; listCount < ObjectToPass.StartTime.length; listCount++ ){// Draws as many as there are objects in the passed lists.
+
+    if ( ObjectToPass.i[listCount] < paths[listCount].x.length-1){
+    
+    
+      if (ObjectToPass.ElapsedTime[listCount]+ObjectToPass.StartTime[listCount] > ObjectToPass.EndTime[listCount]){
+        ObjectToPass.i[listCount]++;
+        ObjectToPass.StartTime[listCount] = paths[listCount].t[ObjectToPass.i[listCount]].getTime(); //Gets time in milliseconds
+        ObjectToPass.EndTime[listCount] = paths[listCount].t[ObjectToPass.i[listCount]+1].getTime();
+        ObjectToPass.Difference[listCount] = ObjectToPass.EndTime[listCount]- ObjectToPass.StartTime[listCount]; // Now have the difference in milliseconds
+        ObjectToPass.Difference[listCount] = ObjectToPass.Difference[listCount]/ObjectToPass.speedUp; // Adjust for speedup
+        ObjectToPass.ElapsedTime[listCount] = 0;
+      }
+      else{
+        ObjectToPass.Portion[listCount] = ObjectToPass.ElapsedTime[listCount]/ ObjectToPass.Difference[listCount];
+        ObjectToPass.xLoc[listCount] = (1-ObjectToPass.Portion[listCount])*paths[listCount].x[ObjectToPass.i[listCount]] + ObjectToPass.Portion[listCount]*paths[listCount].x[ObjectToPass.i[listCount]+1]; 
+        ObjectToPass.yLoc[listCount] = (1-ObjectToPass.Portion[listCount])*paths[listCount].y[ObjectToPass.i[listCount]] + ObjectToPass.Portion[listCount]*paths[listCount].y[ObjectToPass.i[listCount]+1];
+        //alert("test");
+        drawPointOfMany(ObjectToPass.xLoc[listCount],ObjectToPass.yLoc[listCount],listCount);
+        //alert(ObjectToPass.xLoc);
+        ObjectToPass.ElapsedTime[listCount] += ObjectToPass.timeStep*ObjectToPass.speedUp;
+      }
+      
+  
+    }
+  }
+  }
+}
+  
 
   function drawPoint(x,y) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -257,9 +461,18 @@ const point1 = [
     let b = 0;
     let style = "rgb(" + r + "," + g + "," + b + ")";
     ctx.fillStyle = style;
-    ctx.fillRect(x - 2, y, 5, 5);
+    ctx.fillRect(x - 5, y, 11, 11);
   }
-  */ 
+  function drawPointOfMany(x,y,num){
+    
+    let r = num* 3537 % 255;
+    let g = num* 9346 % 255;
+    let b = num* 2065 % 255;
+    let style = "rgb(" + r + "," + g + "," + b + ")";
+    ctx.fillStyle = style;
+    ctx.fillRect(x - 5, y, 11, 11);
+  }
+  
   function drawTest() {
     ctx.fillStyle = "rgb(200,0,0)";
     ctx.fillRect(140, 300, 50, 47); //x y size x size y
@@ -277,18 +490,25 @@ const point1 = [
   }
 
   function draw(line) {
+    drawPicture();
     let r = 0;
     let g = 0;
     let b = 0;
     let style = "rgb(" + r + "," + g + "," + b + ")";
     ctx.strokeStyle = style;
     ctx.fillStyle = style;
+    drawPicture();
     ctx.beginPath();
     ctx.moveTo(line.x[0], line.y[0]);
   
     for (let j = 0; j < line.x.length; j++) {
       ctx.lineTo(line.x[j], line.y[j]);
-      ctx.fillRect(line.x[j] - 2, line.y[j] - 2, 5, 5);
+      if (j < line.x.length-1){
+        drawTriangle(line.x[j], line.y[j], line.x[j+1], line.y[j+1]);  //Gives direction
+      } 
+      else{
+        ctx.fillRect(line.x[j] - 2, line.y[j] - 2, 5, 5); 
+      }
     }
     ctx.stroke();
   }
