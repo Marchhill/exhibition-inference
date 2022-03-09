@@ -28,6 +28,17 @@ exitingDueToError() {
 trap exitingDueToError ERR
 
 
+##############
+# SUDO CHECK #
+##############
+
+if [[ $EUID -ne 0 ]]
+then 
+    printRed "Please run this script as root, otherwise some parts won't work."
+    exit 1
+fi
+
+
 ######################################
 # IF SETUP IS NOT RUN THE FIRST TIME #
 ######################################
@@ -47,6 +58,14 @@ then
     mkdir /deltaForce
     printGreen "Successfully created /deltaForce"
 else 
+    if [[ ! -e /deltaForceDBBackups ]]
+    then
+        mkdir /deltaForceDBBackups
+    fi
+    dst="/deltaForceDBBackups/$(date -Iseconds)-db.sqlite3"
+    cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 dst
+    printGreen "Successfully backed up database to $dst"
+    dst=
     rm -rf /deltaForce
     printGreen "/deltaForce already existed; deleting everything"
     mkdir /deltaForce
