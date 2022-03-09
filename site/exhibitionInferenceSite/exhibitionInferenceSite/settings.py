@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-q^$k*hr0v1msc*7hz+k-v5eyg@&4avfijms3gnx!a1%%qng(@="
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # get site-local IP of host
 ALLOWED_HOSTS = [gethostbyname(gethostname())]
