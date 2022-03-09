@@ -67,7 +67,7 @@ printGreen "Successfully (re)installed dependencies"
 # https://nginx.org/en/linux_packages.html#Debian
 if [[ -z "$(which nginx)" ]]
 then
-    sudo apt install --upgrade curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+    sudo apt install -y --upgrade curl gnupg2 ca-certificates lsb-release debian-archive-keyring
     curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
     checksum=$(echo $(gpg --dry-run --quiet --import --import-options import-show /usr/share/keyrings/nginx-archive-keyring.gpg))
     correctChecksum=$(echo "pub rsa2048 2011-08-19 [SC] [expires: 2024-06-14] 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 uid nginx signing key <signing-key@nginx.com>")
@@ -79,11 +79,11 @@ then
     echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/debian `lsb_release -cs` nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
     echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | sudo tee /etc/apt/preferences.d/99nginx
     sudo apt update
-    sudo apt install nginx
+    sudo apt install -y nginx
     printGreen "Successfully installed NGINX"
 else
     sudo apt update
-    sudo apt install --upgrade nginx
+    sudo apt install -y --upgrade nginx
     printGreen "Successfully upgraded NGINX"
 fi
 
