@@ -222,6 +222,7 @@ const point3 = [
         curPathLen=1; 
       }
     }
+    paths[pathCounter] = new path(points,currentSession);
   }
     
   function drawPicture() {
