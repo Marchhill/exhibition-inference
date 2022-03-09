@@ -43,6 +43,8 @@ fi
 # IF SETUP IS NOT RUN THE FIRST TIME #
 ######################################
 
+printBlue "SECTION: IF SETUP IS NOT RUN THE FIRST TIME"
+
 # || true prevents tripping our set -e setting. If these fail, it's ok.
 systemctl stop gunicorn.socket || true
 systemctl disable gunicorn.socket || true
@@ -52,6 +54,9 @@ systemctl stop nginx || true
 #####################
 # SETUP /deltaForce #
 #####################
+
+printBlue "SECTION: SETUP /deltaForce"
+
 
 if [[ ! -e /deltaForce ]]
 then
@@ -78,6 +83,8 @@ cd /deltaForce
 ################
 # DEPENDENCIES #
 ################
+
+printBlue "SECTION: DEPENDENCIES"
 
 # Install dependencies if not already installed
 apt install -y --upgrade git python3 python3-distutils
@@ -130,6 +137,8 @@ fi
 # GIT CLONE #
 #############
 
+printBlue "SECTION: GIT CLONE"
+
 git clone -b deployment-server --single-branch https://github.com/Marchhill/exhibition-inference.git
 printGreen "Successfully cloned exhibition-inference github repository"
 
@@ -144,6 +153,8 @@ python3 site/exhibitionInferenceSite/manage.py collectstatic  # Collect static f
 #################
 # SYSTEMD SETUP #
 #################
+
+printBlue "SECTION: SYSTEMD SETUP"
 
 cat <<EOF > /etc/systemd/system/gunicorn.socket
 [Unit]
@@ -248,6 +259,8 @@ printGreen "Successfully started gunicorn and nginx"
 ########
 # DONE #
 ########
+
+printBlue "SECTION: DONE"
 
 echo
 printGreen "Installation success :) Server is up and running at one of: $(hostname -I)."
