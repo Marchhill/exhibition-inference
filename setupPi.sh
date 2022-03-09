@@ -5,9 +5,9 @@
 # Then execute this file with sudo permissions (sudo ./setup.sh)
 # NB: All commands are run with sudo permissions.
 
-###############
-# BOILERPLATE #
-###############
+####################
+# BASH BOILERPLATE #
+####################
 
 # https://stackoverflow.com/a/5947802/7254995
 printRed () {
@@ -138,7 +138,7 @@ fi
 
 printBlue "SECTION: GIT CLONE"
 
-git clone -b deployment-server --single-branch https://github.com/Marchhill/exhibition-inference.git
+git clone -b main --single-branch https://github.com/Marchhill/exhibition-inference.git
 printGreen "Successfully cloned exhibition-inference github repository"
 
 GITHUB_BASE_DIR="/deltaForce/exhibition-inference/"
