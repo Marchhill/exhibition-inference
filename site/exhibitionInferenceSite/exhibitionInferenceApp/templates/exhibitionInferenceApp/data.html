@@ -1,0 +1,9 @@
+{% extends "./base.html" %}
+{% load static %}
+
+{% block dataDump %}active{% endblock %}
+
+{% block containerBody %}
+<h2>Raw Data:</h2>
+<p>Access the list of Readings provided via {{ data }}</p>
+{% endblock %}

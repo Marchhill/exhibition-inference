@@ -1,50 +1,62 @@
 {% extends "./base.html" %}
 
-{% block additionalHead %}
-<style>
-    textarea {
-        width: 500px;
-        height: 300px;
-    }
-</style>
-{% endblock %}
-
 {% block manageDevicesClass %}active{% endblock %}
 
 {% block containerBody %}
-<h1>Manage Device: {{ device.hardwareId }}</h1>
-<form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}" method="post">
-    {% csrf_token %}
-    <fieldset>
-        <legend>
-            <h2>Device ID: {{ hardwareId }}</h2>
-        </legend>
-        <h3>Current metadata:</h3>
-        <p>{{ oldMetadata|default_if_none:'(empty)' }}</p>
-        <h3>Active Sessions</h3>
-        {% if activeSessionOptional %}
-        Session ID: {{ activeSessionOptional.pk }}<br />
-        Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
-        Last Seen: {{ latestReadingOptional.t|date:"r" }}<br />
-        End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
-        {% else %}
-        <p>(none)</p>
-        {% endif %}
-    </fieldset>
+<div class="text-center w-75 mx-auto mb-3">
+    <div class="card">
+        <div class="card-header">
+            <h1>{{ hardwareId }}</h1>
+            {% if activeSessionOptional %}
+            <span class="badge bg-success rounded-pill">ACTIVE SESSION</span>
+            {% if not activeSessionOptional.device.metadata %}
+            <span class="badge bg-danger rounded-pill ms-1">No metadata</span>
+            {% endif %}
+            {% else %}
+            <span class="badge bg-secondary rounded-pill">IDLE</span>
+            {% endif %}
+        </div>
 
-    {% if messages %}
-    {% for message in messages %}
-    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-    <div class="alert alert-success" role="alert">{{ message }}</div>
-    {% endif %}
-    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-    <div class="alert alert-danger" role="alert">{{ message }}</div>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
-    <label for="newMetadata">Edit metadata:</label><br />
-    <textarea id="newMetadata" name="metadata"
-        placeholder="E.g. currently holding audioguide">{{ textboxMetadata|default_if_none:"" }}</textarea><br />
-    <input type="submit" value="Save Changes">
-</form>
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-start">
+                    <h3>Current metadata:</h3>
+                    {{ oldMetadata|default_if_none:"(empty)"|linebreaksbr }}
+                </div>
+                <div class="col text-start">
+                    <h3>Active Sessions</h3>
+                    {% if activeSessionOptional %}
+                    Session ID: {{ activeSessionOptional.pk }}<br />
+                    Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
+                    Last Seen: {{ latestReadingOptional.t|date:"r" }}<br />
+                    End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
+                    {% else %}
+                    <p>(none)</p>
+                    {% endif %}
+
+                    <h3 class="mt-3">Edit metadata:</h3>
+                    <form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}"
+                        method="post">
+                        {% csrf_token %}
+
+                        {% if messages %}
+                        {% for message in messages %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        <div class="alert alert-success" role="alert">{{ message }}</div>
+                        {% endif %}
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <div class="alert alert-danger" role="alert">{{ message }}</div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        <textarea class="form-control" id="newMetadata" name="metadata"
+                            placeholder="E.g. currently holding audioguide"
+                            rows=15>{{ textboxMetadata|default_if_none:"" }}</textarea>
+                        <button class="btn btn-primary w-100 mt-3" type="submit">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

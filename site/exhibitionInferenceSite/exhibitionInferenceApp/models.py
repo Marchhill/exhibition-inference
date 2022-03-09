@@ -4,6 +4,9 @@ from django.contrib import admin
 
 
 class Metadata(models.Model):
+    """
+    Project-wide settings
+    """
     key = models.CharField(max_length=100, primary_key=True)
     value = models.CharField(max_length=200)
 
@@ -13,6 +16,9 @@ class Metadata(models.Model):
 
 
 class Session(models.Model):
+    """
+    Each record represents a session (1 person holding 1 tag walking around museum from start to end).
+    """
     device = models.ForeignKey(
         'Device', on_delete=models.CASCADE, db_column='hardwareId')
     metadata = models.CharField(max_length=1000, null=True, blank=True)
@@ -55,6 +61,9 @@ class Session(models.Model):
 
 
 class Reading(models.Model):
+    """
+    Each record is a coordinate of a tag (of a session) at some instant in time.
+    """
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
@@ -72,6 +81,9 @@ class Reading(models.Model):
             models.UniqueConstraint(
                 fields=["session", "t"], name="idempotency_check"),
         ]
+        permissions = [
+            ("visualise_reading", "Can view visualisation pages")
+        ]
 
     def __str__(self):
         return f"({self.x}, {self.y}, {self.z}) at t={self.t}"
@@ -88,6 +100,10 @@ class Reading(models.Model):
 
 
 class Device(models.Model):
+    """
+    Each record represents a physical device, and the frontdesk officer can key in data related to the session
+    (E.g. whether the person is carrying a audioguide)
+    """
     hardwareId = models.CharField(max_length=200, primary_key=True)
     # store metadata with device until session starts
     metadata = models.CharField(max_length=1000, null=True, blank=True)

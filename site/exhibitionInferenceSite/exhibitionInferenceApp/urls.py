@@ -13,6 +13,7 @@ urlpatterns = [
          views.visualisationStartEnd, name="visualisation-start-end"),
     path("visualisation/session/<int:sessionId>/",
          views.visualisationSession, name="visualisation-session"),
+    path("data", views.dataDefault, name="data-default"),
     path("submit/", views.submitReading, name="submit"),
     path(
         "frontdesk/devices/",

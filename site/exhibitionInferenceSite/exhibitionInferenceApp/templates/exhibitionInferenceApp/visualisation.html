@@ -15,7 +15,9 @@ timestamps<br />
 /visualisation/start/2022-03-06T15:04:53.597914+00:00/end/2022-03-08T15:04:53.597914+00:00/ to see only readings between
 the two timestamps<br />
 
+
 <button style="position:static;left:10px" id="AllButton">See All</button>
+
 
 <button style="position:static;left:30px" id="backButton">Backwards</button>
 
@@ -23,28 +25,18 @@ the two timestamps<br />
 
  <button style="position:static;left:70px" id="animateButton">Animate!</button> 
 
-
+<br />
 
 <canvas id="test" width="1200" height="900">
     Cannot load canvas
 </canvas>
 
-
-
 <div style="display: none" id="jsonData" data-json="{{ data }}"></div>
 
 <br />
 
-
-
 <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
 
-<!--
-<p id="dataTest"> testItem</p>
-
-END OF CANVAS
-
-<p>Access the list of Readings provided via {{ data }}</p>
--->
 
 {% endblock %}
+

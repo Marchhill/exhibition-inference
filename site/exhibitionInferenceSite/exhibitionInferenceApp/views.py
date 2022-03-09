@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as authLogin, logout as authLogout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
@@ -32,12 +32,14 @@ def index(req: WSGIRequest) -> HttpResponse:
     if not req.user.is_authenticated:
         # If not logged in, show "Nothing to show" page
         return render(req, "exhibitionInferenceApp/unauthenticated.html", context={})
-    return render(req, "exhibitionInferenceApp/index.html", context={
-        "data": json.dumps(utils.getAllReadings(), cls=ReadingEncoder)
-    })
+    return render(req, "exhibitionInferenceApp/index.html", context={})
 
 
-@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+@permission_required(
+    "exhibitionInferenceApp.visualise_readings",
+    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    raise_exception=True
+)
 def visualisationDefault(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -47,7 +49,11 @@ def visualisationDefault(req: WSGIRequest) -> HttpResponse:
     return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:visualisation-all"))
 
 
-@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+@permission_required(
+    "exhibitionInferenceApp.visualise_readings",
+    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    raise_exception=True
+)
 def visualisationAll(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -58,7 +64,11 @@ def visualisationAll(req: WSGIRequest) -> HttpResponse:
     })
 
 
-@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+@permission_required(
+    "exhibitionInferenceApp.visualise_readings",
+    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    raise_exception=True
+)
 def visualisationStartEnd(req: WSGIRequest, startTime: str, endTime: str) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -76,7 +86,11 @@ def visualisationStartEnd(req: WSGIRequest, startTime: str, endTime: str) -> Htt
     })
 
 
-@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+@permission_required(
+    "exhibitionInferenceApp.visualise_readings",
+    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    raise_exception=True
+)
 def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -85,6 +99,19 @@ def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
     return render(req, "exhibitionInferenceApp/visualisation.html", context={
         "data": json.dumps(readings, cls=ReadingEncoder)
     })
+
+
+@permission_required(
+    "exhibitionInferenceApp.visualise_readings",
+    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    raise_exception=True
+)
+def dataDefault(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+    readings: List[Reading] = utils.getAllReadings()
+    return render(req, "exhibitionInferenceApp/data.html", context={
+        "data": json.dumps(readings, cls=ReadingEncoder)})
 
 
 def login(req: WSGIRequest):
@@ -206,8 +233,11 @@ def submitReading(req: WSGIRequest) -> HttpResponse:
 def frontdeskDeviceSelect(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
+    devices = sorted(utils.getAllDevices(), key=lambda d: d.hardwareId)
+    activeSessions = [utils.getActiveSessionIfExists(d) for d in devices]
+
     return render(req, "exhibitionInferenceApp/deviceSelect.html", context={
-        "devices": sorted(utils.getAllDevices(), key=lambda d: d.hardwareId)
+        "devicesAndSessions": zip(devices, activeSessions)
     })
 
 
@@ -219,6 +249,7 @@ def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     d = get_object_or_404(Device, hardwareId=hardwareId)
 
     sOptional: Optional[Session] = utils.getActiveSessionIfExists(d)
+
     lastReading = utils.getLastReading(sOptional) \
         if sOptional is not None else None
     return render(req, "exhibitionInferenceApp/deviceManage.html", context={
@@ -230,6 +261,11 @@ def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     })
 
 
+@permission_required(
+    "exhibitionInferenceApp.change_device",
+    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    raise_exception=True
+)
 def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     if req.method != "POST":
         raise Http404("Must make a POST request!")
@@ -253,7 +289,7 @@ def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpRespon
     messages.success(req, 'Successfully saved changes!')
     return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:frontdesk-device-manage", args=(hardwareId,)))
 
-# [DONE] TODO FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
+# [DONE] FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
 # Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.
 # We may assume (confirmed by Fredrik and Yash) that for each tag, the location data will come in in sequence.
 

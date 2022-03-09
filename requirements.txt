@@ -4,3 +4,4 @@ numpy==1.22.2
 pyserial==3.5
 requests==2.27.1
 scipy==1.8.0
+gunicorn==20.1.0
