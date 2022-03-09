@@ -34,6 +34,7 @@
                     <p>(none)</p>
                     {% endif %}
 
+                    {% if perms.exhibitionInferenceApp.change_device %}
                     <h3 class="mt-3">Edit metadata:</h3>
                     <form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}"
                         method="post">
@@ -54,6 +55,7 @@
                             rows=15>{{ textboxMetadata|default_if_none:"" }}</textarea>
                         <button class="btn btn-primary w-100 mt-3" type="submit">Save Changes</button>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

@@ -5,7 +5,7 @@
 {% block containerBody %}
 <div class="text-center">
     <h1>Device Select</h1>
-    <div class="list-group w-25 mx-auto">
+    <div class="list-group w-50 mx-auto">
         {% for d, activeSession in devicesAndSessions %}
         <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' d.hardwareId %}"
             class="list-group-item d-flex align-items-center list-group-item-action">

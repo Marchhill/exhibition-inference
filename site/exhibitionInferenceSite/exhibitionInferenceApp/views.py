@@ -35,9 +35,9 @@ def index(req: WSGIRequest) -> HttpResponse:
     return render(req, "exhibitionInferenceApp/index.html", context={})
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
-    "exhibitionInferenceApp.visualise_readings",
-    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    "exhibitionInferenceApp.visualise_reading",
     raise_exception=True
 )
 def visualisationDefault(req: WSGIRequest) -> HttpResponse:
@@ -49,9 +49,9 @@ def visualisationDefault(req: WSGIRequest) -> HttpResponse:
     return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:visualisation-all"))
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
-    "exhibitionInferenceApp.visualise_readings",
-    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    "exhibitionInferenceApp.visualise_reading",
     raise_exception=True
 )
 def visualisationAll(req: WSGIRequest) -> HttpResponse:
@@ -64,9 +64,9 @@ def visualisationAll(req: WSGIRequest) -> HttpResponse:
     })
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
-    "exhibitionInferenceApp.visualise_readings",
-    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    "exhibitionInferenceApp.visualise_reading",
     raise_exception=True
 )
 def visualisationStartEnd(req: WSGIRequest, startTime: str, endTime: str) -> HttpResponse:
@@ -86,9 +86,9 @@ def visualisationStartEnd(req: WSGIRequest, startTime: str, endTime: str) -> Htt
     })
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
-    "exhibitionInferenceApp.visualise_readings",
-    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    "exhibitionInferenceApp.visualise_reading",
     raise_exception=True
 )
 def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
@@ -101,9 +101,9 @@ def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
     })
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
-    "exhibitionInferenceApp.visualise_readings",
-    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
+    "exhibitionInferenceApp.visualise_reading",
     raise_exception=True
 )
 def dataDefault(req: WSGIRequest) -> HttpResponse:
@@ -261,9 +261,9 @@ def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
     })
 
 
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
     "exhibitionInferenceApp.change_device",
-    login_url=reverse_lazy("exhibitionInferenceApp_ns:login"),
     raise_exception=True
 )
 def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpResponse:
