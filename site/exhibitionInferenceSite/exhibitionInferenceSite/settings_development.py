@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-from socket import gethostname, gethostbyname
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-q^$k*hr0v1msc*7hz+k-v5eyg@&4avfijms3gnx!a1%%qng(@="
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-# get site-local IP of host
-ALLOWED_HOSTS = [gethostbyname(gethostname())]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -119,14 +117,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 # Django will resolve static URLs to have this prefix.
-# Need to make sure Nginx serves the files at the same prefix.
-# so in nginx.conf:
-# location /<static url>/ { ... }
-# <static url> must be equal to whatever STATIC_URL here is (without the trailing /)
 STATIC_URL = "static/"
-
-# Where static files served by Nginx reside
-STATIC_ROOT = BASE_DIR / "static_root/"
 
 # for (python3 manage.py collectstatic) to find static files not defined inside exhibitionInferenceApp/
 STATICFILES_DIRS = [
