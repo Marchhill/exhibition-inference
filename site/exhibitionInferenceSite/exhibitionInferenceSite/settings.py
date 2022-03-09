@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-from socket import gethostname, gethostbyname
+import subprocess
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +27,11 @@ SECRET_KEY = "django-insecure-q^$k*hr0v1msc*7hz+k-v5eyg@&4avfijms3gnx!a1%%qng(@=
 DEBUG = True
 
 # get site-local IP of host
-ALLOWED_HOSTS = [gethostbyname(gethostname())]
+# To ensure same output as hostname -I, subprocess is used instead of socket.gethostbyname(socket.gethostname()).
+# Pi's /etc/host has a 127.0.1.1 -> raspberryPi entry, which messes socket.gethostbyname command up to return 127.0.0.1
+# instead of the site-local IP address.
+ALLOWED_HOSTS = subprocess.run(["hostname", "-I"], capture_output=True)\
+    .stdout.decode().strip().split(' ')
 
 
 # Application definition
