@@ -146,10 +146,10 @@ After=network.target
 User=$(whoami)
 Group=www-data
 WorkingDirectory=${GITHUB_BASE_DIR}site/exhibitionInferenceSite
-ExecStart=$(which gunicorn) \
-          --access-logfile - \
-          --workers 3 \
-          --bind unix:/run/gunicorn.sock \
+ExecStart=$(which gunicorn) \\
+          --access-logfile - \\
+          --workers 3 \\
+          --bind unix:/run/gunicorn.sock \\
           exhibitionInferenceSite.wsgi:application
 
 [Install]
