@@ -22,12 +22,15 @@ Clicking on this will prompt the user to enter their credentials, the current cr
 After logging in the user will see a basic description of the museum as well as multiple options in the top left.
 ## Manage devices
 This allows the user to look at the current devices in the system and check if they are active or not, as well as letting them edit the metadata.
+## Manage Sessions
+This lets the user see all active and completed sessions in the database. Clicking on these will show information about the session, as well as allowing the user to edit metadata about that session.
 ## Visualisation
+The user will see a list of ways they can see the data, the top option will show them all of the data on the system, the second allows them to enter the earliest StartTime and latest EndTime they want to see (in yyyy-mm-ddThh:mm:ss format). The bottom lets them pick a single session to visualise. The user then sees the data they chose on the visualisation page.
 - The user will initially see a map of the museum, and all paths on the system will be mapped on it. Each path will have a different colour and at each point recorded by the system there will be an arrow pointing towards the next arrow.
-- The button "Forward" makes it so the user can only see a single path, the next one in the list of paths.
+- The button "Forwards" makes it so the user can only see a single path, the next one in the list of paths.
 - "Backwards" will go back in the list of paths.
 - "See All" Lets the user see all of the points on the map again, like when the loaded the page.
-- Animate shows an animation of all of the paths currently visible on the map, how fast they move is directly related to how fast the tag moved.
+- "Animate!" shows an animation of all of the paths currently visible on the map, how fast they move is directly related to how fast the tag moved.
 - Filters on data can be made by using entering subpaths into the search bar as detailed on the screen.
 ## Data
 The user will be able to see the raw data, so they can export it and use it however they feel appropriate.
