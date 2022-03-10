@@ -6,7 +6,7 @@ This script is used to configure the tags, anchors and the single passive device
 ### Usage
 - Make sure that the device (e.g. tag) is connected using a micro-usb cable to the computer running this script
 - `cd .../exhibition-inference/hardwareInterface/`
-- `python3 configure.py <English name of device>`
+- `python3 configure.py`
 - Follow instructions as prompted in the terminal
 
 ### **passive.py**
