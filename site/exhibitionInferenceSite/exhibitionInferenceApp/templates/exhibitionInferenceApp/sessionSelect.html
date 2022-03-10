@@ -4,7 +4,7 @@
 
 {% block containerBody %}
 <div class="text-center w-75 mx-auto mb-3">
-    <h1>Session Select</h1>
+    <h2>Session Select</h2>
     <div class="list-group">
         {% for session in sessionsPage %}
         <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' session.pk %}"
