@@ -4,7 +4,7 @@
 
 {% block containerBody %}
 <div class="text-center w-75 mx-auto mb-3">
-    <h4 class="mb-0">Select Multiple-Visualisation Mode</h4>
+    <h4 class="mb-0">Select Range to Visualise</h4>
     <span style="font-variant: small-caps">caution: these may cause some lag</span>
 
     <a href="{% url 'exhibitionInferenceApp_ns:visualisation-all' %}"
@@ -42,10 +42,10 @@
         </form>
     </div>
 
-    <h4>Or Select a Session to Visualise</h4>
+    <h4>Or Select one Session to Visualise</h4>
     <div class="list-group">
         {% for session in sessionsPage %}
-        <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' session.pk %}"
+        <a href="{% url 'exhibitionInferenceApp_ns:visualisation-session' session.pk %}"
             class="list-group-item d-flex align-items-center list-group-item-action">
             <div class="flex-shrink-1 fw-bold">{{ session.pk }}</div>
             <div class="vr mx-3"></div>

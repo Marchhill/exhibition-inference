@@ -74,7 +74,9 @@ def visualisationAll(req: WSGIRequest) -> HttpResponse:
 
     readings: List[Reading] = utils.getAllReadings()
     return render(req, "exhibitionInferenceApp/visualisation.html", context={
-        "data": json.dumps(readings, cls=ReadingEncoder)
+        "data": json.dumps(readings, cls=ReadingEncoder),
+        "allSessionCount": len(Session.objects.all()),
+        "readingsCount": len(readings)
     })
 
 
@@ -118,7 +120,10 @@ def visualisationStartEnd(req: WSGIRequest, startTime: str, endTime: str) -> Htt
     readings: List[Reading] = utils.getReadingsBetween(
         startTime=startTime, endTime=endTime)
     return render(req, "exhibitionInferenceApp/visualisation.html", context={
-        "data": json.dumps(readings, cls=ReadingEncoder)
+        "data": json.dumps(readings, cls=ReadingEncoder),
+        "startDateTime": startDateTime,
+        "endDateTime": endDateTime,
+        "readingsCount": len(readings)
     })
 
 
@@ -131,9 +136,12 @@ def visualisationSession(req: WSGIRequest, sessionId: int) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
 
+    s = get_object_or_404(Session, pk=sessionId)
     readings: List[Reading] = utils.getSessionReadings(sessionId=sessionId)
     return render(req, "exhibitionInferenceApp/visualisation.html", context={
-        "data": json.dumps(readings, cls=ReadingEncoder)
+        "data": json.dumps(readings, cls=ReadingEncoder),
+        "session": s,
+        "readingsCount": len(readings)
     })
 
 
