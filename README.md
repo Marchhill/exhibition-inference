@@ -12,3 +12,22 @@ The project aims to use UWB trilateration to estimate how visitors travel around
 There are 2 important parts to deploy: hardware, backend (which encompasses the visualisation frontend).
 - For hardware deployment notes, see `hardwareInferface/README.md`.
 - For backend deployment notes, see `site/README.md`.
+
+# Navigating the website
+Upon entering the website the user will see a blank screen, with an option to login in the top right.
+Clicking on this will prompt the user to enter their credentials, the current credentials are as follows:
+- username=password=delta_admin (used for admins, unrestricted rights)
+- username=password=frontdesk (used for frontdesk staff to write notes for tag sessions)
+- username=password=analysis (used for people to see visualisation data)
+After logging in the user will see a basic description of the museum as well as multiple options in the top left.
+## Manage devices
+This allows the user to look at the current devices in the system and check if they are active or not, as well as letting them edit the metadata.
+## Visualisation
+The user will initially see a map of the museum, and all paths on the system will be mapped on it. Each path will have a different colour and at each point recorded by the system there will be an arrow pointing towards the next arrow.
+The button "Forward" makes it so the user can only see a single path, the next one in the list of paths.
+"Backwards" will go back in the list of paths.
+"See All" Lets the user see all of the points on the map again, like when the loaded the page.
+Animate shows an animation of all of the paths currently visible on the map, how fast they move is directly related to how fast the tag moved.
+Filters on data can be made by using entering subpaths into the search bar as detailed on the screen.
+## Data
+The user will be able to see the raw data, so they can export it and use it however they feel appropriate.
