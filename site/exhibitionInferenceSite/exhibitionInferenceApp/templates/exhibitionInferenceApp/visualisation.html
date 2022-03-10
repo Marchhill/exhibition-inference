@@ -4,39 +4,35 @@
 {% block visualisationClass %}active{% endblock %}
 
 {% block containerBody %}
+<div class="mx-auto w-75">
+    {% if allSessionCount %}
+    <h3 class="text-center">You're visualising all {{ allSessionCount }} sessions.</h3>
+    {% elif startDateTime and endDateTime %}
+    <h3 class="text-center">You're visualising readings between<br />
+        {{ startDateTime|date:"c" }} and {{endDateTime|date:"c" }}</h3>
+    {% elif session %}
+    <h3 class="text-center">You're visualising Session {{ session.pk }}
+        <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' session.pk %}">(Details)</a>
+    </h3>
+    {% endif %}
+    {% if readingsCount == 0 %}
+    <h5 class="text-center" style="font-variant: small-caps">(no readings to visualise)</h5>
+    {% else %}
+    <h5 class="text-center" style="font-variant: small-caps">(total {{ readingsCount }} readings)</h5>
+    {% endif %}
 
-<h2>Visualisation page</h2>
+    <div class="mt-3 text-center">
+        <button class="btn btn-primary" id="AllButton">See All</button>
+        <button class="btn btn-primary" id="backButton">Backwards</button>
+        <button class="btn btn-primary" id="forwardButton">Forward</button>
+        <button class="btn btn-primary" id="animateButton">Animate!</button>
 
+        <canvas class="mb-3" id="test" width="1200" height="900">
+            Cannot load canvas
+        </canvas>
+    </div>
 
-<p> How to navigate: </p>
-/visualisation/session/11 to see only readings from session ID 11<br />
-/visualisation/start/2022-03-06T15:04:53.597914/end/2022-03-08T15:04:53.597914/ to see only readings between the two
-timestamps<br />
-/visualisation/start/2022-03-06T15:04:53.597914+00:00/end/2022-03-08T15:04:53.597914+00:00/ to see only readings between
-the two timestamps<br />
-
-
-<button style="position:static;left:10px" id="AllButton">See All</button>
-
-
-<button style="position:static;left:30px" id="backButton">Backwards</button>
-
-<button style="position:static;left:50px" id="forwardButton">Forward</button>
-
- <button style="position:static;left:70px" id="animateButton">Animate!</button> 
-
-<br />
-
-<canvas id="test" width="1200" height="900">
-    Cannot load canvas
-</canvas>
-
-<div style="display: none" id="jsonData" data-json="{{ data }}"></div>
-
-<br />
-
-<script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
-
-
+    <div style="display: none" id="jsonData" data-json="{{ data }}"></div>
+    <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
+</div>
 {% endblock %}
-
