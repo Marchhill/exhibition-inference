@@ -19,8 +19,6 @@
     <h5 class="text-center" style="font-variant: small-caps">(no readings to visualise)</h5>
     {% else %}
     <h5 class="text-center" style="font-variant: small-caps">(total {{ readingsCount }} readings)</h5>
-    {% endif %}
-
     <div id="buttons" class="mt-3 text-center">
         <button class="btn btn-primary" id="AllButton">See All</button>
         <button class="btn btn-primary" id="backButton">Backwards</button>
@@ -31,8 +29,9 @@
             Cannot load canvas
         </canvas>
     </div>
-
     <div style="display: none" id="jsonData" data-json="{{ data }}"></div>
     <script src="{% static 'exhibitionInferenceApp/js/Visualisation.js' %}"></script>
+    {% endif %}
+
 </div>
 {% endblock %}
