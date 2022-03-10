@@ -23,11 +23,11 @@ After logging in the user will see a basic description of the museum as well as 
 ## Manage devices
 This allows the user to look at the current devices in the system and check if they are active or not, as well as letting them edit the metadata.
 ## Visualisation
-The user will initially see a map of the museum, and all paths on the system will be mapped on it. Each path will have a different colour and at each point recorded by the system there will be an arrow pointing towards the next arrow.
-The button "Forward" makes it so the user can only see a single path, the next one in the list of paths.
-"Backwards" will go back in the list of paths.
-"See All" Lets the user see all of the points on the map again, like when the loaded the page.
-Animate shows an animation of all of the paths currently visible on the map, how fast they move is directly related to how fast the tag moved.
-Filters on data can be made by using entering subpaths into the search bar as detailed on the screen.
+-The user will initially see a map of the museum, and all paths on the system will be mapped on it. Each path will have a different colour and at each point recorded by the system there will be an arrow pointing towards the next arrow.
+-The button "Forward" makes it so the user can only see a single path, the next one in the list of paths.
+-"Backwards" will go back in the list of paths.
+-"See All" Lets the user see all of the points on the map again, like when the loaded the page.
+-Animate shows an animation of all of the paths currently visible on the map, how fast they move is directly related to how fast the tag moved.
+-Filters on data can be made by using entering subpaths into the search bar as detailed on the screen.
 ## Data
 The user will be able to see the raw data, so they can export it and use it however they feel appropriate.
