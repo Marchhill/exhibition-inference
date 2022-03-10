@@ -9,6 +9,8 @@ urlpatterns = [
     path("visualisation/", views.visualisationDefault,
          name="visualisation-default"),
     path("visualisation/all/", views.visualisationAll, name="visualisation-all"),
+    path("visualisation/startEndQuery/",
+         views.visualisationStartEndQuery, name="visualisation-start-end-query"),
     path("visualisation/start/<str:startTime>/end/<str:endTime>/",
          views.visualisationStartEnd, name="visualisation-start-end"),
     path("visualisation/session/<int:sessionId>/",

@@ -1,0 +1,87 @@
+{% extends "./base.html" %}
+
+{% block visualisationClass %}active{% endblock %}
+
+{% block containerBody %}
+<div class="text-center w-75 mx-auto mb-3">
+    <h4 class="mb-0">Select Multiple-Visualisation Mode</h4>
+    <span style="font-variant: small-caps">caution: these may cause some lag</span>
+
+    <a href="{% url 'exhibitionInferenceApp_ns:visualisation-all' %}"
+        class="list-group-item d-flex align-items-center list-group-item-action border-warning rounded-1 my-3">
+        Visualise all {{ totalNumberOfSessions }} sessions</a>
+
+    <div class="card p-3 mb-3 border-warning">
+        <form action="{% url 'exhibitionInferenceApp_ns:visualisation-start-end-query' %}" method="post">
+            {% csrf_token %}
+
+            <div class="d-flex">
+                <div class="flex-grow-1">
+                    <div class="input-group mb-2">
+                        <span class="input-group-text">Start datetime</span>
+                        <input type="text" class="form-control" name="start" placeholder="yyyy-mm-ddThh:mm:ss"
+                            value="2022-03-10T08:00:00">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text">End datetime</span>
+                        <input type="text" class="form-control" name="end" placeholder="yyyy-mm-ddThh:mm:ss"
+                            value="{% now 'Y-m-j\TH:i:s' %}">
+                    </div>
+                    {% if messages %}
+                    {% for message in messages %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                    <div class="alert alert-danger mt-2 mb-0" role="alert">{{ message }}</div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-end ps-3">
+                    <button type="submit" class="btn btn-outline-warning">Visualise Date Range</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <h4>Or Select a Session to Visualise</h4>
+    <div class="list-group">
+        {% for session in sessionsPage %}
+        <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' session.pk %}"
+            class="list-group-item d-flex align-items-center list-group-item-action">
+            <div class="flex-shrink-1 fw-bold">{{ session.pk }}</div>
+            <div class="vr mx-3"></div>
+            <div>
+                {% if session.startTime|date:"jMY" == session.endTime|date:"jMY" %}
+                {{ session.startTime|date:"D, j M Y H:i:s" }} ~ {{ session.endTime|date:"H:i:s" }}
+                {% else %}
+                {{ session.startTime|date:"D, j M Y H:i:s" }} ~ {{ session.endTime|date:"H:i:s D, j M Y" }}
+                {% endif %}
+            </div>
+            <div class="ms-auto">
+                {% if session.endTime %}
+                <span class="badge bg-primary rounded-pill ms-1">ENDED</span>
+                {% else %}
+                <span class="badge bg-success rounded-pill ms-1">IN PROGRESS</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mt-3 w-75 mx-auto">
+        <div class="mx-auto">
+            {% if sessionsPage.has_previous %}
+            <a class="btn btn-outline-primary" href="?page=1">&laquo; first</a>
+            <a class="btn btn-outline-primary" href="?page={{ sessionsPage.previous_page_number }}">previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ sessionsPage.number }} of {{ sessionsPage.paginator.num_pages }}.
+            </span>
+            {% if sessionsPage.has_next %}
+            <a class="btn btn-outline-primary" href="?page={{ sessionsPage.next_page_number }}">next</a>
+            <a class="btn btn-outline-primary" href="?page={{ sessionsPage.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

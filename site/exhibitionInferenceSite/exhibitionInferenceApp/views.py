@@ -53,9 +53,14 @@ def visualisationDefault(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
 
-    # In case people want to show a different default page next time, this is the method to do it in
-    # Currently, auto-redirect to visualisation/all/
-    return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:visualisation-all"))
+    sessions = utils.getAllSessionsReverseOrder()
+    paginator = Paginator(sessions, 25)  # Show 25 sessions per page
+    page_number = req.GET.get("page")
+    sessionsPage = paginator.get_page(page_number)
+    return render(req, "exhibitionInferenceApp/visualisationDefault.html", context={
+        "sessionsPage": sessionsPage,
+        "totalNumberOfSessions": len(sessions)
+    })
 
 
 @login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
@@ -71,6 +76,28 @@ def visualisationAll(req: WSGIRequest) -> HttpResponse:
     return render(req, "exhibitionInferenceApp/visualisation.html", context={
         "data": json.dumps(readings, cls=ReadingEncoder)
     })
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+@permission_required(
+    "exhibitionInferenceApp.visualise_reading",
+    raise_exception=True
+)
+def visualisationStartEndQuery(req: WSGIRequest) -> HttpResponse:
+    if req.method != "POST":
+        raise Http404("Must make a POST request!")
+    errors = []
+    if parse_datetime(req.POST["start"]) is None:
+        errors.append("Invalid start datetime")
+    if parse_datetime(req.POST["end"]) is None:
+        errors.append("Invalid end datetime")
+    if len(errors) > 0:
+        messages.error(req, f"{', '.join(errors)}.")
+        return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:visualisation-default"))
+    return HttpResponseRedirect(reverse(
+        "exhibitionInferenceApp_ns:visualisation-start-end",
+        args=(req.POST["start"], req.POST["end"])
+    ))
 
 
 @login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
@@ -315,7 +342,6 @@ def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpRespon
 def frontdeskSessionSelect(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
         raise Http404("Must make a GET request!")
-    # sessions = sorted(utils.getAllsessions(), key=lambda d: d.hardwareId)
 
     sessions = utils.getAllSessionsReverseOrder()
     paginator = Paginator(sessions, 25)  # Show 25 sessions per page
