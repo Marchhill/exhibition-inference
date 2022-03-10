@@ -74,7 +74,7 @@ while True:
         ser.read_all()
 
         # Configure anchor
-        send_command(ser, "acas", "1 0 0 0 1 1 0")
+        send_command(ser, "acas", "1 0 0 0 1 2 0")
 
         usb_send_command(ser, "apg")
         ser.readline()
