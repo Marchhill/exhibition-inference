@@ -76,12 +76,15 @@ def getOrCreateDeviceByHardwareId(hardwareId: str) -> Device:
 
 
 def getAllDevices() -> List[Device]:
-    return [e for e in Device.objects.all()]
+    return list(Device.objects.all())
 
 
 ###########
 # Session #
 ###########
+
+def getAllSessionsReverseOrder() -> List[Session]:
+    return list(Session.objects.all().order_by("startTime").reverse())
 
 
 def createSession(device: Device, startTime: datetime) -> Session:

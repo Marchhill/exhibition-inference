@@ -30,6 +30,10 @@
                         <a class="nav-link {% block manageDevicesClass %}{% endblock %}"
                             href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-select' %}">Manage Devices</a>
                     </li>
+                    <li class="nav-item active">
+                        <a class="nav-link {% block manageSessionsClass %}{% endblock %}"
+                            href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-select' %}">Manage Sessions</a>
+                    </li>
                     {% if perms.exhibitionInferenceApp.visualise_reading %}
                     <li class="nav-item active">
                         <a class="nav-link {% block visualisationClass %}{% endblock %}"

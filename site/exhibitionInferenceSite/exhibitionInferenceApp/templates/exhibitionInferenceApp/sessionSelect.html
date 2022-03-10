@@ -1,0 +1,52 @@
+{% extends "./base.html" %}
+
+{% block manageSessionsClass %}active{% endblock %}
+
+{% block containerBody %}
+<div class="text-center">
+    <h1>Session Select</h1>
+    <div class="list-group w-75 mx-auto mb-3">
+        {% for session in sessionsPage %}
+        <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' session.pk %}"
+            class="list-group-item d-flex align-items-center list-group-item-action">
+            <div class="flex-shrink-1 fw-bold">{{ session.pk }}</div>
+            <div class="vr mx-3"></div>
+            <div>
+                {% if session.startTime|date:"jMY" == session.endTime|date:"jMY" %}
+                {{ session.startTime|date:"D, j M Y G:i:s" }} ~ {{ session.endTime|date:"G:i:s" }}
+                {% else %}
+                {{ session.startTime|date:"D, j M Y G:i:s" }} ~ {{ session.endTime|date:"G:i:s D, j M Y" }}
+                {% endif %}
+            </div>
+            <div class="ms-auto">
+                {% if not session.endTime and not session.device.metadata or session.endTime and not session.metadata %}
+                <span class="badge bg-danger rounded-pill ms-1">No metadata</span>
+                {% endif %}
+                {% if session.endTime %}
+                <span class="badge bg-primary rounded-pill ms-1">ENDED</span>
+                {% else %}
+                <span class="badge bg-success rounded-pill ms-1">IN PROGRESS</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="pagination mb-3 w-75 mx-auto">
+        <div class="mx-auto">
+            {% if sessionsPage.has_previous %}
+            <a class="btn btn-outline-primary" href="?page=1">&laquo; first</a>
+            <a class="btn btn-outline-primary" href="?page={{ sessionsPage.previous_page_number }}">previous</a>
+            {% endif %}
+            <span class="current">
+                Page {{ sessionsPage.number }} of {{ sessionsPage.paginator.num_pages }}.
+            </span>
+            {% if sessionsPage.has_next %}
+            <a class="btn btn-outline-primary" href="?page={{ sessionsPage.next_page_number }}">next</a>
+            <a class="btn btn-outline-primary" href="?page={{ sessionsPage.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -5,19 +5,21 @@
 {% block containerBody %}
 <div class="text-center">
     <h1>Device Select</h1>
-    <div class="list-group w-50 mx-auto">
+    <div class="list-group w-50 mx-auto mb-3">
         {% for d, activeSession in devicesAndSessions %}
         <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' d.hardwareId %}"
             class="list-group-item d-flex align-items-center list-group-item-action">
             {{ d.hardwareId }}
-            {% if activeSession %}
-            <span class="badge bg-success rounded-pill ms-auto">ACTIVE SESSION</span>
-            {% if not activeSession.device.metadata %}
-            <span class="badge bg-danger rounded-pill ms-1">No metadata</span>
-            {% endif %}
-            {% else %}
-            <span class="badge bg-secondary rounded-pill ms-auto">IDLE</span>
-            {% endif %}
+            <div class="ms-auto">
+                {% if activeSession %}
+                {% if not activeSession.device.metadata %}
+                <span class="badge bg-danger rounded-pill ms-1">No metadata</span>
+                {% endif %}
+                <span class="badge bg-success rounded-pill ms-1">ACTIVE SESSION</span>
+                {% else %}
+                <span class="badge bg-secondary rounded-pill ms-1">IDLE</span>
+                {% endif %}
+            </div>
         </a>
         {% endfor %}
     </div>

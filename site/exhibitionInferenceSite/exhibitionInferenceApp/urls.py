@@ -30,6 +30,21 @@ urlpatterns = [
         views.frontdeskDeviceManageSubmit,
         name="frontdesk-device-manage-submit"
     ),
+    path(
+        "frontdesk/sessions/",
+        views.frontdeskSessionSelect,
+        name="frontdesk-session-select"
+    ),
+    path(
+        "frontdesk/sessions/<int:sessionId>",
+        views.frontdeskSessionManage,
+        name="frontdesk-session-manage"
+    ),
+    path(
+        "frontdesk/sessions/<int:sessionId>/submit",
+        views.frontdeskSessionManageSubmit,
+        name="frontdesk-session-manage-submit"
+    ),
     path("login/", views.login, name="login"),
     path("login/submit/", views.loginPost, name="login-submit"),
     path("logout/", views.logout, name="logout"),

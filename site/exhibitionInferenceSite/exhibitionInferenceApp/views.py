@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login as authLogin, logout as authLogout
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.wsgi import WSGIRequest
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
@@ -17,6 +18,10 @@ from urllib.parse import urlparse, parse_qs
 from . import utils
 from .models import Device, Reading, Session
 
+
+#########
+# INDEX #
+#########
 
 class ReadingEncoder(json.JSONEncoder):
     def default(self, o):
@@ -34,6 +39,10 @@ def index(req: WSGIRequest) -> HttpResponse:
         return render(req, "exhibitionInferenceApp/unauthenticated.html", context={})
     return render(req, "exhibitionInferenceApp/index.html", context={})
 
+
+#################
+# VISUALISATION #
+#################
 
 @login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 @permission_required(
@@ -114,6 +123,10 @@ def dataDefault(req: WSGIRequest) -> HttpResponse:
         "data": json.dumps(readings, cls=ReadingEncoder)})
 
 
+##################
+# LOGIN / LOGOUT #
+##################
+
 def login(req: WSGIRequest):
     if req.method != "GET":
         raise Http404("Must make a GET request!")
@@ -158,6 +171,10 @@ def logout(req: WSGIRequest):
     authLogout(req)
     return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:index"))
 
+
+############
+# HARDWARE #
+############
 
 @csrf_exempt
 def submitReading(req: WSGIRequest) -> HttpResponse:
@@ -229,6 +246,10 @@ def submitReading(req: WSGIRequest) -> HttpResponse:
     return HttpResponse("Submission processed successfully.")
 
 
+#############
+# FRONTDESK #
+#############
+
 @login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
 def frontdeskDeviceSelect(req: WSGIRequest) -> HttpResponse:
     if req.method != "GET":
@@ -257,7 +278,7 @@ def frontdeskDeviceManage(req: WSGIRequest, hardwareId: str) -> HttpResponse:
         "oldMetadata": d.metadata,
         "textboxMetadata": d.metadata,
         "activeSessionOptional": sOptional,
-        "latestReadingOptional": lastReading
+        "latestReading": lastReading
     })
 
 
@@ -288,6 +309,72 @@ def frontdeskDeviceManageSubmit(req: WSGIRequest, hardwareId: str) -> HttpRespon
 
     messages.success(req, 'Successfully saved changes!')
     return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:frontdesk-device-manage", args=(hardwareId,)))
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def frontdeskSessionSelect(req: WSGIRequest) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+    # sessions = sorted(utils.getAllsessions(), key=lambda d: d.hardwareId)
+
+    sessions = utils.getAllSessionsReverseOrder()
+    paginator = Paginator(sessions, 25)  # Show 25 sessions per page
+    page_number = req.GET.get("page")
+    sessionsPage = paginator.get_page(page_number)
+    return render(req, "exhibitionInferenceApp/sessionSelect.html", context={
+        "sessionsPage": sessionsPage
+    })
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+def frontdeskSessionManage(req: WSGIRequest, sessionId: int) -> HttpResponse:
+    if req.method != "GET":
+        raise Http404("Must make a GET request!")
+
+    s = get_object_or_404(Session, pk=sessionId)
+    lastReading = utils.getLastReading(s)
+    return render(req, "exhibitionInferenceApp/sessionManage.html", context={
+        "session": s,
+        # only useful if the session has ended: see sessionManage.html's logic
+        "oldMetadata": s.metadata,
+        # only useful if the session has ended: see sessionManage.html's logic
+        "textboxMetadata": s.metadata,
+        "latestReading": lastReading
+    })
+
+
+@login_required(login_url=reverse_lazy("exhibitionInferenceApp_ns:login"))
+@permission_required(
+    "exhibitionInferenceApp.change_session",
+    raise_exception=True
+)
+def frontdeskSessionManageSubmit(req: WSGIRequest, sessionId: str) -> HttpResponse:
+    if req.method != "POST":
+        raise Http404("Must make a POST request!")
+    print(sessionId)
+
+    s = get_object_or_404(Session, pk=sessionId)
+    newMetadata: str
+    try:
+        newMetadata = req.POST["metadata"]
+    except KeyError:
+        messages.error("Request was malformed. You shouldn't see this.")
+
+        return render(req, "exhibitionInferenceApp/sessionManage.html", context={
+            "session": s,
+            # only useful if the session has ended: see sessionManage.html's logic
+            "oldMetadata": s.metadata,
+            # only useful if the session has ended: see sessionManage.html's logic
+            "textboxMetadata": newMetadata,
+            "latestReading": utils.getLastReading(s)
+        })
+
+    s.metadata = newMetadata if len(newMetadata) > 0 else None
+    s.save()
+
+    messages.success(req, 'Successfully saved changes!')
+    return HttpResponseRedirect(reverse("exhibitionInferenceApp_ns:frontdesk-session-manage", args=(s.pk,)))
+
 
 # [DONE] FIX: Database becomes inconsistent if the same session (i.e. same tag device) writes to the database backwards in time (e.g. write at t=15 and then write at t=12. It'll succeed...)
 # Concrete example: (new session) write t=15 succeeds and startTime=15, then write t=14 error because location out of bounds. The session will terminate with endTime=14 but startTime=15 is later than endTime=14.

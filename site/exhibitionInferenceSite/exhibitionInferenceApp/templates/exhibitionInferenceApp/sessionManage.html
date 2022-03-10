@@ -1,19 +1,19 @@
 {% extends "./base.html" %}
 
-{% block manageDevicesClass %}active{% endblock %}
+{% block manageSessionsClass %}active{% endblock %}
 
 {% block containerBody %}
 <div class="text-center w-75 mx-auto mb-3">
     <div class="card">
         <div class="card-header">
-            <h1>{{ hardwareId }}</h1>
-            {% if activeSessionOptional %}
-            {% if not activeSessionOptional.device.metadata %}
+            <h1>Session {{ session.pk }}</h1>
+            {% if not session.endTime and not session.device.metadata or session.endTime and not session.metadata %}
             <span class="badge bg-danger rounded-pill ms-1">No metadata</span>
             {% endif %}
-            <span class="badge bg-success rounded-pill ms-1">ACTIVE SESSION</span>
+            {% if session.endTime %}
+            <span class="badge bg-primary rounded-pill ms-1">ENDED</span>
             {% else %}
-            <span class="badge bg-secondary rounded-pill ms-1">IDLE</span>
+            <span class="badge bg-success rounded-pill ms-1">IN PROGRESS</span>
             {% endif %}
         </div>
 
@@ -21,24 +21,30 @@
             <div class="row">
                 <div class="col text-start">
                     <h3>Current metadata:</h3>
+                    {% if session.endTime %}
                     {{ oldMetadata|default_if_none:"(empty)"|linebreaksbr }}
+                    {% else %}
+                    {{ session.device.metadata|default_if_none:"(empty)"|linebreaksbr }}
+                    {% endif %}
                 </div>
                 <div class="col text-start">
-                    <h3>Active Session</h3>
-                    {% if activeSessionOptional %}
-                    Session ID:
-                    <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' activeSessionOptional.pk %}">
-                        {{ activeSessionOptional.pk }}</a><br />
-                    Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
+                    <h3>Details</h3>
+                    {% if session %}
+                    Device ID: {{ session.device.pk }}<br />
+                    Start Time: {{ session.startTime|date:"r" }}<br />
                     Last Seen: {{ latestReading.t|date:"r" }}<br />
-                    End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
+                    End Time: {{ session.endTime|default_if_none:"(still ongoing)" }}<br />
                     {% else %}
                     <p>(none)</p>
                     {% endif %}
 
                     {% if perms.exhibitionInferenceApp.change_device %}
                     <h3 class="mt-3">Edit metadata:</h3>
-                    <form action="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage-submit' hardwareId %}"
+                    {% if not session.endTime %}
+                    <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-device-manage' session.device.pk %}">
+                        Manage Device: {{ session.device.pk }}</a>
+                    {% else %}
+                    <form action="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage-submit' session.pk %}"
                         method="post">
                         {% csrf_token %}
 
@@ -57,6 +63,7 @@
                             rows=15>{{ textboxMetadata|default_if_none:"" }}</textarea>
                         <button class="btn btn-primary w-100 mt-3" type="submit">Save Changes</button>
                     </form>
+                    {% endif %}
                     {% endif %}
                 </div>
             </div>
