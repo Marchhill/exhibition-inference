@@ -8,10 +8,10 @@
     <span style="font-variant: small-caps">caution: these may cause some lag</span>
 
     <a href="{% url 'exhibitionInferenceApp_ns:visualisation-all' %}"
-        class="list-group-item d-flex align-items-center list-group-item-action border-warning rounded-1 my-3">
+        class="list-group-item d-flex align-items-center list-group-item-action border-primary rounded-1 my-3">
         Visualise all {{ totalNumberOfSessions }} sessions</a>
 
-    <div class="card p-3 mb-3 border-warning">
+    <div class="card p-3 mb-3 border-primary">
         <form action="{% url 'exhibitionInferenceApp_ns:visualisation-start-end-query' %}" method="post">
             {% csrf_token %}
 
@@ -36,7 +36,7 @@
                     {% endif %}
                 </div>
                 <div class="d-flex justify-content-end ps-3">
-                    <button type="submit" class="btn btn-outline-warning">Visualise Date Range</button>
+                    <button type="submit" class="btn btn-outline-primary">Visualise Date Range</button>
                 </div>
             </div>
         </form>

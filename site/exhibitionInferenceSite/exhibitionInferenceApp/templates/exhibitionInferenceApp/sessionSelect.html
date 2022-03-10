@@ -5,7 +5,7 @@
 {% block containerBody %}
 <div class="text-center w-75 mx-auto mb-3">
     <h1>Session Select</h1>
-    <div class="list-group">
+    <div class="list-group mt-3">
         {% for session in sessionsPage %}
         <a href="{% url 'exhibitionInferenceApp_ns:frontdesk-session-manage' session.pk %}"
             class="list-group-item d-flex align-items-center list-group-item-action">
