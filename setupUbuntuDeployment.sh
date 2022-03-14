@@ -70,8 +70,8 @@ else
     then
         dst="/deltaForceDBBackups/$(date -Iseconds)-db.sqlite3"
         cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 dst
-        dst=
         printGreen "Successfully backed up database to $dst"
+        dst=
     fi
     rm -rf /deltaForce
     printGreen "/deltaForce already existed; deleting it"
@@ -261,7 +261,7 @@ printGreen "Successfully started gunicorn and nginx"
 # RUN PASSIVE.PY #
 ##################
 # NB This assumes the Green passive tag remains a passive tag, and isn't reconfigured
-python3 $(GITHUB_BASE_DIR)hardwareInterface/passive.py Green &
+python3 "${GITHUB_BASE_DIR}hardwareInterface/passive.py" Green &
 printGreen "Successfully started passive.py. Now polling of data from tags."
 
 ########
