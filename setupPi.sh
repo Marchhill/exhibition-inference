@@ -68,10 +68,8 @@ else
     fi
     if [[ -e /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 ]]
     then
-        dst="/deltaForceDBBackups/$(date -Iseconds)-db.sqlite3"
-        cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 dst
-        printGreen "Successfully backed up database to $dst"
-        dst=
+        cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 /deltaForceDBBackups/db.sqlite3.bak
+        printGreen "Successfully backed up database to /deltaForceDBBackups/db.sqlite3.bak"
     fi
     rm -rf /deltaForce
     printGreen "/deltaForce already existed; deleting it"
@@ -150,6 +148,19 @@ pip install -r requirements.txt
 printGreen "Successfully installed exhibition-inference pip dependencies"
 
 python3 site/exhibitionInferenceSite/manage.py collectstatic  # Collect static files
+
+
+####################
+# RESTORE DATABASE #
+####################
+
+if [[ -e /deltaForceDBBackups/db.sqlite3.bak ]]
+then
+    mv /deltaForceDBBackups/db.sqlite3.bak /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3
+    printGreen "Successfully restored database from /deltaForceDBBackups/db.sqlite3.bak"
+fi
+python3 site/exhibitionInferenceSite/manage.py migrate
+printGreen "Successfully performed database migrations (if any)"
 
 
 #################

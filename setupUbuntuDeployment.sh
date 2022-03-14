@@ -1,3 +1,4 @@
+
 #!/bin/bash
 #
 # Download this file into the home directory of the device. 
@@ -68,10 +69,8 @@ else
     fi
     if [[ -e /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 ]]
     then
-        dst="/deltaForceDBBackups/$(date -Iseconds)-db.sqlite3"
-        cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 dst
-        printGreen "Successfully backed up database to $dst"
-        dst=
+        cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 /deltaForceDBBackups/db.sqlite3.bak
+        printGreen "Successfully backed up database to /deltaForceDBBackups/db.sqlite3.bak"
     fi
     rm -rf /deltaForce
     printGreen "/deltaForce already existed; deleting it"
@@ -93,7 +92,7 @@ apt install -y --upgrade git python3 python3-distutils
 printGreen "Successfully (re)installed dependencies"
 
 # Install nginx
-# https://nginx.org/en/linux_packages.html#Debian
+# https://nginx.org/en/linux_packages.html#Ubuntu
 if [[ -z "$(which nginx)" ]]
 then
     apt install -y --upgrade curl gnupg2 ca-certificates lsb-release ubuntu-keyring
@@ -150,6 +149,19 @@ pip install -r requirements.txt
 printGreen "Successfully installed exhibition-inference pip dependencies"
 
 python3 site/exhibitionInferenceSite/manage.py collectstatic  # Collect static files
+
+
+####################
+# RESTORE DATABASE #
+####################
+
+if [[ -e /deltaForceDBBackups/db.sqlite3.bak ]]
+then
+    mv /deltaForceDBBackups/db.sqlite3.bak /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3
+    printGreen "Successfully restored database from /deltaForceDBBackups/db.sqlite3.bak"
+fi
+python3 site/exhibitionInferenceSite/manage.py migrate
+printGreen "Successfully performed database migrations (if any)"
 
 
 #################
