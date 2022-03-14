@@ -16,12 +16,12 @@
 To deploy on the Raspberry Pi:
 1. Establish connection to the Raspberry Pi.\
    The Pi has been configured to automatically connect to the SSID=`Museum` WiFi automatically on booting up (receiving power).\
-   On another device also connected ot the same WiFi SSID:
-   - Run `sudo nmap -sn 172.16.22.*/24` to discover the (site-local) IP address of the Pi. The MAC address of the Pi is `E4:5F:01:7F:BC:72`.
+   On another device (e.g. laptop) also connected to the same WiFi SSID:
+   - Run `ping raspberrypi.local` in a terminal to discover the (site-local) IP address of the Pi. If it helps, the MAC address of the Pi is `E4:5F:01:7F:BC:72`. For more help, go to [Raspberry Pi's official documentation](https://www.raspberrypi.com/documentation/computers/remote-access.html#ip-address).
    - Run `ssh pi@<ip>`, keying in the IP address you found in the previous step. You'll be prompted for Pi's password: use [redacted].
 2. Pull changes from this Github and redeploy.\
    Run this command:\
-     `wget --no-cache https://raw.githubusercontent.com/Marchhill/exhibition-inference/main/setupPi.sh; chmod +x setupPi.sh; sudo ./setupPi.sh;`.\
+     `wget --no-cache -O setupPi.sh https://raw.githubusercontent.com/Marchhill/exhibition-inference/main/setupPi.sh; chmod +x setupPi.sh; sudo ./setupPi.sh;`.\
     The setup process will run automatically. Once it succeeds, the backend is successfully deployed. The output will give you the IP address which can be used by devices on the WiFi LAN to access the backend website.
     
     > What is done on first run:

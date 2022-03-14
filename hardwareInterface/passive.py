@@ -29,7 +29,7 @@ def handle_data(sender, data):
             'hardwareId': str(hex(node_ID)),
             'quality': str(quality)
         }
-        r = requests.post('http://127.0.0.1:8000/submit/',
+        r = requests.post('http://127.0.0.1/submit/',
                           data=json.dumps(pload))
         print(r)
         print(r.text)
