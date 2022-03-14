@@ -155,7 +155,7 @@ python3 site/exhibitionInferenceSite/manage.py collectstatic  # Collect static f
 # RESTORE DATABASE #
 ####################
 
-if [[ ! -e /deltaForceDBBackups/db.sqlite3.bak ]]
+if [[ -e /deltaForceDBBackups/db.sqlite3.bak ]]
 then
     mv /deltaForceDBBackups/db.sqlite3.bak /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3
     printGreen "Successfully restored database from /deltaForceDBBackups/db.sqlite3.bak"
