@@ -48,7 +48,7 @@ printBlue "SECTION: IF SETUP IS NOT RUN THE FIRST TIME"
 # || true prevents tripping our set -e setting. If these fail, it's ok.
 systemctl stop gunicorn.socket || true
 systemctl stop nginx || true
-kill $(jobs -p) || true  # stop previously running "passive.py"s
+pkill -f python3 || true  # stop previously running "passive.py"s
 
 
 #####################
