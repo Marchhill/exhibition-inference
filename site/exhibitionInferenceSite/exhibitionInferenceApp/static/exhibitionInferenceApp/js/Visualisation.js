@@ -173,6 +173,8 @@ const point3 = [
   var canvas = document.getElementById("test");
   var ctx = canvas.getContext("2d");
 
+  var SpeedUp = 1;
+
   var intervalID;
   var showingAll = true;
   var currentPath = 0;
@@ -341,7 +343,7 @@ const point3 = [
   document.getElementById("animateButton").onclick = function(){ 
     
     var ObjectToPass = new Object();
-    ObjectToPass.speedUp = 1; //speedUp times faster than real life.
+    ObjectToPass.speedUp = SpeedUp; //speedUp times faster than real life.
     ObjectToPass.timeStep = 100; //Real time between updates (in ms)
     // so we have a current path
     if (!showingAll){
@@ -387,10 +389,18 @@ const point3 = [
       intervalID = setInterval(drawScene, ObjectToPass.timeStep, ObjectToPass);
     }
   }
+  const form  = document.getElementById('SpeedForm');
 
+  form.addEventListener('submit', (event) => {
+    let NewSpeedUp = Number(form.elements[0].value);
+    if (NewSpeedUp > 0){
+      SpeedUp = NewSpeedUp;
+    }
+    event.preventDefault();
+  });
   
 function drawScene(ObjectToPass){
-
+  ObjectToPass.speedUp = SpeedUp; //Keeps speedup dynamic
   if (!showingAll){
   
   if ( ObjectToPass.i < paths[currentPath].x.length-1){
@@ -401,7 +411,6 @@ function drawScene(ObjectToPass){
       ObjectToPass.StartTime = paths[currentPath].t[ObjectToPass.i].getTime(); //Gets time in milliseconds
       ObjectToPass.EndTime = paths[currentPath].t[ObjectToPass.i+1].getTime();
       ObjectToPass.Difference = ObjectToPass.EndTime- ObjectToPass.StartTime; // Now have the difference in milliseconds
-      ObjectToPass.Difference = ObjectToPass.Difference/ObjectToPass.speedUp; // Adjust for speedup
       ObjectToPass.CurrentTime = ObjectToPass.StartTime;
       ObjectToPass.ElapsedTime = 0;
       drawPoint(paths[currentPath].x[ObjectToPass.i],paths[currentPath].y[ObjectToPass.i]);
@@ -435,7 +444,6 @@ function drawScene(ObjectToPass){
         ObjectToPass.StartTime[listCount] = paths[listCount].t[ObjectToPass.i[listCount]].getTime(); //Gets time in milliseconds
         ObjectToPass.EndTime[listCount] = paths[listCount].t[ObjectToPass.i[listCount]+1].getTime();
         ObjectToPass.Difference[listCount] = ObjectToPass.EndTime[listCount]- ObjectToPass.StartTime[listCount]; // Now have the difference in milliseconds
-        ObjectToPass.Difference[listCount] = ObjectToPass.Difference[listCount]/ObjectToPass.speedUp; // Adjust for speedup
         ObjectToPass.ElapsedTime[listCount] = 0;
         drawPointOfMany(paths[listCount].x[ObjectToPass.i[listCount]],paths[listCount].y[ObjectToPass.i[listCount]],listCount);
       }
