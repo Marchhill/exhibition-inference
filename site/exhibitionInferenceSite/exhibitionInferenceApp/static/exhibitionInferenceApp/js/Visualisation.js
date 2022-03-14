@@ -404,6 +404,7 @@ function drawScene(ObjectToPass){
       ObjectToPass.Difference = ObjectToPass.Difference/ObjectToPass.speedUp; // Adjust for speedup
       ObjectToPass.CurrentTime = ObjectToPass.StartTime;
       ObjectToPass.ElapsedTime = 0;
+      drawPoint(paths[currentPath].x[ObjectToPass.i],paths[currentPath].y[ObjectToPass.i]);
     }
     else{
       ObjectToPass.Portion = ObjectToPass.ElapsedTime/ ObjectToPass.Difference;
@@ -436,6 +437,7 @@ function drawScene(ObjectToPass){
         ObjectToPass.Difference[listCount] = ObjectToPass.EndTime[listCount]- ObjectToPass.StartTime[listCount]; // Now have the difference in milliseconds
         ObjectToPass.Difference[listCount] = ObjectToPass.Difference[listCount]/ObjectToPass.speedUp; // Adjust for speedup
         ObjectToPass.ElapsedTime[listCount] = 0;
+        drawPointOfMany(paths[listCount].x[ObjectToPass.i[listCount]],paths[listCount].y[ObjectToPass.i[listCount]],listCount);
       }
       else{
         ObjectToPass.Portion[listCount] = ObjectToPass.ElapsedTime[listCount]/ ObjectToPass.Difference[listCount];
