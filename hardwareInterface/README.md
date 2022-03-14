@@ -13,11 +13,7 @@ This script is used to configure the tags, anchors and the single passive device
 ### Description
 This is responsible for gathering the data from a maximum of 5 tags concurrently and sending it to the database. Ensure that the database server is running before running this script. This script requires a bluetooth connection to the **passive** device.
 ### Usage
-- Ensure that the database server is running. It can be started like so:
-    - `cd .../exhibition-inference/site/exhibitionInferenceSite`
-    - `python3 manage.py runserver`
-    - As a sidenote, one can now access the visualisation interface by navigating to `http://127.0.0.1:8000/` in the browser
-    - The admin interface can be reached by navigating to `http://127.0.0.1:8000/admin` in the browser and using `delta_admin` as **both** the username and the password
+- Ensure that the database server is running. Refer to `.../exhibition-inference/site/README.md`.
 - Make sure that the **passive** device is discoverable via bluetooth i.e. it is not too far away from the computer running this script. Also ensure that the computer running this script is capable of connecting to bluetooth devices.
 - `cd .../exhibition-inference/hardwareInterface/`
 - `python3 passive.py <English name of **passive** device`>
@@ -46,7 +42,7 @@ This script is no longer needed, but can be used for debugging. It can be used t
 - Note down the positions of the anchors **relative to the room origin**. It is vital that these positions are relative to the room origin for the system to work correctly and the data generated to still be compatible with old data (with the old anchor positions).
 - Configure the anchors using the configuration script
 - Place the anchors in the room according to the positions noted down before
-- Navigate to `http://127.0.0.1:8000/admin` (after starting the server - process described in the passive.py section above)
+- Navigate to `http://<IP address of Pi>/admin` (after starting the server - process described in the passive.py section above)
 - Configure the bounds using the *My actions* section on the right. These bounds correspond to the dimensions of the room (the area in which we want to track people) **relative to the room origin**
 
 

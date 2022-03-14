@@ -31,7 +31,7 @@ DEBUG = False
 # Pi's /etc/host has a 127.0.1.1 -> raspberryPi entry, which messes socket.gethostbyname command up to return 127.0.0.1
 # instead of the site-local IP address.
 ALLOWED_HOSTS = subprocess.run(["hostname", "-I"], capture_output=True)\
-    .stdout.decode().strip().split(' ')
+    .stdout.decode().strip().split(' ') + ["127.0.0.1"]
 
 
 # Application definition

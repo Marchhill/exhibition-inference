@@ -22,7 +22,7 @@
 
 
 **Backend related**:
-- `admin.py`: Django configuration file for the admin subdomain (`localhost:8000/admin`)
+- `admin.py`: Django configuration file for the admin subdomain (`http://.../admin`)
 - `apps.py`: Boilerplate Django configuration file
 - `tests.py`: Unit tests for backend.
 - `urls.py`: Django routing control + static asset management.

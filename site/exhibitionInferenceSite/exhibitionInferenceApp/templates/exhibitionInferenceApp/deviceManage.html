@@ -31,7 +31,11 @@
                         {{ activeSessionOptional.pk }}</a><br />
                     Start Time: {{ activeSessionOptional.startTime|date:"r" }}<br />
                     Last Seen: {{ latestReading.t|date:"r" }}<br />
-                    End Time: {{ activeSessionOptional.endTime|default_if_none:"(still ongoing)" }}<br />
+                    {% if session.endTime %}
+                    End Time: {{ session.endTime|date:"r" }}<br />
+                    {% else %}
+                    End Time: (still ongoing)<br />
+                    {% endif %}
                     {% else %}
                     <p>(none)</p>
                     {% endif %}

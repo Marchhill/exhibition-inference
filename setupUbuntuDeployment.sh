@@ -47,8 +47,8 @@ printBlue "SECTION: IF SETUP IS NOT RUN THE FIRST TIME"
 
 # || true prevents tripping our set -e setting. If these fail, it's ok.
 systemctl stop gunicorn.socket || true
-systemctl disable gunicorn.socket || true
 systemctl stop nginx || true
+kill $(jobs -p) || true  # stop previously running "passive.py"s
 
 
 #####################
@@ -56,7 +56,6 @@ systemctl stop nginx || true
 #####################
 
 printBlue "SECTION: SETUP /deltaForce"
-
 
 if [[ ! -e /deltaForce ]]
 then
@@ -67,12 +66,15 @@ else
     then
         mkdir /deltaForceDBBackups
     fi
-    dst="/deltaForceDBBackups/$(date -Iseconds)-db.sqlite3"
-    cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 dst
-    printGreen "Successfully backed up database to $dst"
-    dst=
+    if [[ -e /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 ]]
+    then
+        dst="/deltaForceDBBackups/$(date -Iseconds)-db.sqlite3"
+        cp /deltaForce/exhibition-inference/site/exhibitionInferenceSite/db.sqlite3 dst
+        dst=
+        printGreen "Successfully backed up database to $dst"
+    fi
     rm -rf /deltaForce
-    printGreen "/deltaForce already existed; deleting everything"
+    printGreen "/deltaForce already existed; deleting it"
     mkdir /deltaForce
     printGreen "Successfully recreated /deltaForce"
 fi
@@ -255,6 +257,12 @@ systemctl start nginx
 
 printGreen "Successfully started gunicorn and nginx"
 
+##################
+# RUN PASSIVE.PY #
+##################
+# NB This assumes the Green passive tag remains a passive tag, and isn't reconfigured
+python3 $(GITHUB_BASE_DIR)hardwareInterface/passive.py Green &
+printGreen "Successfully started passive.py. Now polling of data from tags."
 
 ########
 # DONE #
@@ -264,4 +272,6 @@ printBlue "SECTION: DONE"
 
 echo
 printGreen "Installation success :) Server is up and running at one of: $(hostname -I)."
+# printGreen "Next, run this command to finish deployment:"
+# printGreen "python3 $(GITHUB_BASE_DIR)hardwareInterface/passive.py Green &"
 echo
