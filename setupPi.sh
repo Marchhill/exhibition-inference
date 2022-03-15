@@ -284,5 +284,5 @@ printBlue "SECTION: DONE"
 echo
 printGreen "Installation success :) Server is up and running at one of: $(hostname -I)."
 # printGreen "Next, run this command to finish deployment:"
-# printGreen "python3 $(GITHUB_BASE_DIR)hardwareInterface/passive.py Green &"
+# printGreen "python3 ${GITHUB_BASE_DIR}hardwareInterface/passive.py Green &"
 echo

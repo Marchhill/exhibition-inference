@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-import subprocess
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,9 +29,8 @@ DEBUG = False
 # To ensure same output as hostname -I, subprocess is used instead of socket.gethostbyname(socket.gethostname()).
 # Pi's /etc/host has a 127.0.1.1 -> raspberryPi entry, which messes socket.gethostbyname command up to return 127.0.0.1
 # instead of the site-local IP address.
-ALLOWED_HOSTS = subprocess.run(["hostname", "-I"], capture_output=True)\
-    .stdout.decode().strip().split(' ') + ["127.0.0.1"]
 
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -47,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "exhibitionInferenceApp.middleware.filter_ip_middleware.FilterHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
