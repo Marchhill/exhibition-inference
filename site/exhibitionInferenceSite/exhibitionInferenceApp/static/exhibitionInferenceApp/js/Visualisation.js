@@ -279,6 +279,7 @@ const point3 = [
     y= 7.5-y;
     y+=2; //Should move the point up by two, avoiding the bottom
 
+    y= 10-y;
     //This is still an approximation and should be updated based on the real data.
     //Should be within the bounds though given though.
 
