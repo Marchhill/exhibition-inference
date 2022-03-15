@@ -22,21 +22,31 @@ def generateSession(pollFrequencyHz: int = 5) -> List[Tuple[float, float, float,
 
     numberOfValidXYZ = random.randint(1, 300)
     locations = [(0, 0, 0)]  # tuples of (x, y, z)
-    # want to generate {length} sets of xyz that respect the bounds of [0, 10]
+    # want to generate {length} sets of xyz that respect the bounds
     # since we already defined this session to have {length} data points
+
+    # NB: this is not where you define the tracking area constraints!
+    # This file is for generating random data only.
+    xmin = -2.4
+    xmax = 9
+    ymin = -1.8
+    ymax = 9
+    zmin = -3
+    zmax = 3
+
     for _ in range(numberOfValidXYZ - 1):
         currentX, currentY, currentZ = locations[-1]
         while True:
             newX = currentX + (random.random() - 0.5) * 5
-            if 0 <= newX <= 10:
+            if xmin <= newX <= xmax:
                 break
         while True:
             newY = currentY + (random.random() - 0.5) * 5
-            if 0 <= newY <= 10:
+            if ymin <= newY <= ymax:
                 break
         while True:
             newZ = currentZ + (random.random() - 0.5) * 5
-            if 0 <= newZ <= 10:
+            if zmin <= newZ <= zmax:
                 break
         locations.append((newX, newY, newZ))
     while True:
@@ -45,7 +55,7 @@ def generateSession(pollFrequencyHz: int = 5) -> List[Tuple[float, float, float,
         newY = currentY + (random.random() - 0.4) * 5
         newZ = currentZ + (random.random() - 0.4) * 5
         locations.append((newX, newY, newZ))
-        if not (0 <= newX <= 10 and 0 <= newY <= 10 and 0 <= newZ <= 10):
+        if not (xmin <= newX <= xmax and ymin <= newY <= ymax and zmin <= newZ <= zmax):
             break
 
     totalLength = len(locations)
@@ -70,7 +80,7 @@ def postSession(sessions: List[Tuple[float, float, float, datetime, str, int]]) 
             print(".", end="", flush=True)
         else:
             print(
-                f"\nrequest response={r.status_code}, {_truncateStr(r.content.decode(), 20)}")
+                f"\nrequest response={r.status_code}, {_truncateStr(r.content.decode(), 50)}")
 
 
 if __name__ == "__main__":
