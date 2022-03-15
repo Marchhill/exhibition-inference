@@ -270,10 +270,20 @@ const point3 = [
   }
 
   function dataValsToMapVals(x,y,t){
-    //let height = document.getElementById("test").getAttribute(height);
-    //let width = document.getElementById("test").getAttribute(width);
-    x = (x*1000) /10; //Going to hard code for now, not sure the exact area the values will be in
-    y= 10-y; //We are flipping y, origin is supposed to be the bottom left.
+    origX = x;
+    //Completely changing the coordinates first, lessgo
+    x = 9 - y; //Should be in line?
+    x = (x/10.8 )*6.6;
+    y = 9 - origX;
+    y = (y/11.4)*7.5; // Should work, after it gets flipped
+    y= 7.5-y;
+    y+=2; //Should move the point up by two, avoiding the bottom
+
+    //This is still an approximation and should be updated based on the real data.
+    //Should be within the bounds though given though.
+
+    x = (x*1000) /10; //At this point we're in my 10 by 10 coordinates.
+    
     y = (y*900)/10;
     return [x,y,t];
   }
